@@ -49,7 +49,10 @@ new THREE.MeshStandardMaterial({
 floor.rotation.x=-Math.PI/2;
 scene.add(floor);
 function wall(x,y,z,w,h,d){
-const m=new THREE.Mesh(
+const new THREE.MeshStandardMaterial({
+  color:0xd0c3ae,
+  roughness:.8
+})
 new THREE.BoxGeometry(w,h,d),
 new THREE.MeshStandardMaterial({color:0xd8cbb7})
 );
