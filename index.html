@@ -101,6 +101,37 @@ rock(2,1,.6);
 rock(-5,2,.5);
 
 let keys={};
+let dragging=false;
+let lastX=0;
+let lastY=0;
+
+renderer.domElement.addEventListener("pointerdown",e=>{
+  dragging=true;
+  lastX=e.clientX;
+  lastY=e.clientY;
+});
+
+renderer.domElement.addEventListener("pointerup",()=>{
+  dragging=false;
+});
+
+renderer.domElement.addEventListener("pointermove",e=>{
+  if(!dragging)return;
+
+  const dx=e.clientX-lastX;
+  const dy=e.clientY-lastY;
+
+  camera.rotation.y-=dx*0.004;
+  camera.rotation.x-=dy*0.003;
+
+  camera.rotation.x=Math.max(
+    -Math.PI/2.2,
+    Math.min(Math.PI/2.2,camera.rotation.x)
+  );
+
+  lastX=e.clientX;
+  lastY=e.clientY;
+});
 addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
 addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 
