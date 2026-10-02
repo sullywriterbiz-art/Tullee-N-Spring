@@ -56,16 +56,21 @@ scene.add(m);
 }
 
 /* Four walls with an opening in the front wall */
-wall(-7,2,-3,.5,4,14);
-wall(7,2,-3,.5,4,14);
-wall(0,4,-3,14,8,.5);
-wall(-4.5,2,4.5,5,4,.5);
-wall(4.5,2,4.5,5,4,.5);
+// Room 1 gallery walls
+wall(-7,2,0,.5,4,14);
+wall(7,2,0,.5,4,14);
+wall(0,4,-7,14,8,.5);
 
-/* doorway frame */
-wall(0,3,4.5,.5,2,.5);
-wall(-2.5,2,4.5,.5,4,.5);
-wall(2.5,2,4.5,.5,4,.5);
+// Back wall
+wall(-4.5,2,7,5,4,.5);
+wall(4.5,2,7,5,4,.5);
+
+// Large entrance doorway
+wall(-3,2,-7,8,4,.5);
+wall(3,2,-7,8,4,.5);
+
+// Doorway header
+wall(0,3.5,-7,2,1,.5);
 
 function tree(x,z){
 const trunk=new THREE.Mesh(
