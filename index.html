@@ -41,11 +41,13 @@ scene.add(new THREE.HemisphereLight(0xddebd8,0x665544,2));
 
 const floor=new THREE.Mesh(
 new THREE.PlaneGeometry(30,30),
-new THREE.MeshStandardMaterial({color:0x756b5d})
+new THREE.MeshStandardMaterial({
+  color:0x62594d,
+  roughness:.9
+})
 );
 floor.rotation.x=-Math.PI/2;
 scene.add(floor);
-
 function wall(x,y,z,w,h,d){
 const m=new THREE.Mesh(
 new THREE.BoxGeometry(w,h,d),
