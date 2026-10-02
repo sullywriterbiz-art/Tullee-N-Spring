@@ -37,8 +37,7 @@ const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xe8eee5,0x4d443b,1.6));
-scene.add(new THREE.DirectionalLight(0xfff4dc,2.2));
+scene.add(new THREE.HemisphereLight(0xddebd8,0x665544,2));
 
 const floor=new THREE.Mesh(
 new THREE.PlaneGeometry(30,30),
