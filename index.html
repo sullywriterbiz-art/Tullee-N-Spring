@@ -3,171 +3,250 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tullee & Spring — Room 1</title>
+<title>Tullee and Spring</title>
+
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#b9c8b2}
-canvas{display:block}
-#info{
-position:fixed;top:15px;left:15px;z-index:5;
-padding:12px 16px;background:rgba(255,255,255,.85);
-border-radius:10px;font:16px Georgia,serif;color:#263326
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#080706;
+}
+
+#title{
+  position:fixed;
+  top:22px;
+  left:28px;
+  z-index:10;
+  color:#eee6d8;
+  font-family:Georgia,serif;
+  font-size:24px;
+  letter-spacing:2px;
+}
+
+#instructions{
+  position:fixed;
+  bottom:22px;
+  left:28px;
+  z-index:10;
+  color:#aaa397;
+  font-family:Arial,sans-serif;
+  font-size:14px;
+}
+
+canvas{
+  display:block;
 }
 </style>
 </head>
+
 <body>
 
-<div id="info">
-<b>TULLEE & SPRING</b><br>
-Room 1 — The First Meeting<br>
-WASD / Arrow keys to walk · Drag to look
-</div>
+<div id="title">TULLEE AND SPRING</div>
+<div id="instructions">WASD or arrow keys to walk</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xb9c8b2);
 
-const camera=new THREE.PerspectiveCamera(
-70,innerWidth/innerHeight,.1,1000
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x080706);
+scene.fog = new THREE.FogExp2(0x080706, 0.035);
+
+const camera = new THREE.PerspectiveCamera(
+  70,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100
 );
-camera.position.set(0,1.7,8);
 
-const renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth,innerHeight);
+camera.position.set(0,1.7,18);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xddebd8,0x665544,2));
 
-const floor=new THREE.Mesh(
-new THREE.PlaneGeometry(30,30),
-new THREE.MeshStandardMaterial({
-  color:0x62594d,
-  roughness:.9
-})
+/* FLOOR */
+
+const floorTexture = new THREE.TextureLoader().load(
+  "https://threejs.org/examples/textures/hardwood2_diffuse.jpg"
 );
-floor.rotation.x=-Math.PI/2;
+
+floorTexture.wrapS = THREE.RepeatWrapping;
+floorTexture.wrapT = THREE.RepeatWrapping;
+floorTexture.repeat.set(8,24);
+
+const floorMaterial = new THREE.MeshStandardMaterial({
+  map:floorTexture,
+  roughness:0.65
+});
+
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,80),
+  floorMaterial
+);
+
+floor.rotation.x = -Math.PI/2;
+floor.position.y = 0;
+floor.receiveShadow = true;
 scene.add(floor);
-function wall(x,y,z,w,h,d){
-const new THREE.MeshStandardMaterial({
-  color:0xd0c3ae,
-  roughness:.8
-})
-new THREE.BoxGeometry(w,h,d),
-new THREE.MeshStandardMaterial({color:0xd8cbb7})
-);
-m.position.set(x,y,z);
-scene.add(m);
-}
 
-/* Four walls with an opening in the front wall */
-// Room 1 gallery walls
-wall(-7,2,0,.5,4,14);
-wall(7,2,0,.5,4,14);
-wall(0,4,-7,14,8,.5);
 
-// Back wall
-wall(-4.5,2,7,5,4,.5);
-wall(4.5,2,7,5,4,.5);
+/* WALLS */
 
-// Large entrance doorway
-wall(-3,2,-7,8,4,.5);
-wall(3,2,-7,8,4,.5);
-
-// Doorway header
-wall(0,3.5,-7,2,1,.5);
-
-function tree(x,z){
-const trunk=new THREE.Mesh(
-new THREE.CylinderGeometry(.25,.35,3),
-new THREE.MeshStandardMaterial({color:0x5b4633})
-);
-trunk.position.set(x,1.5,z);
-scene.add(trunk);
-
-const leaves=new THREE.Mesh(
-new THREE.SphereGeometry(1.4,16,12),
-new THREE.MeshStandardMaterial({color:0x527052})
-);
-leaves.position.set(x,3.5,z);
-scene.add(leaves);
-}
-
-tree(-4,-1);
-tree(4,-1);
-
-function rock(x,z,s){
-const r=new THREE.Mesh(
-new THREE.DodecahedronGeometry(s),
-new THREE.MeshStandardMaterial({color:0x777268,roughness:1})
-);
-r.position.set(x,s*.7,z);
-r.rotation.y=Math.random();
-scene.add(r);
-}
-
-rock(-2,1,.8);
-rock(2,1,.6);
-rock(-5,2,.5);
-
-let keys={};
-let dragging=false;
-let lastX=0;
-let lastY=0;
-
-renderer.domElement.addEventListener("pointerdown",e=>{
-  dragging=true;
-  lastX=e.clientX;
-  lastY=e.clientY;
+const wallMaterial = new THREE.MeshStandardMaterial({
+  color:0x171411,
+  roughness:0.9
 });
 
-renderer.domElement.addEventListener("pointerup",()=>{
-  dragging=false;
+const leftWall = new THREE.Mesh(
+  new THREE.BoxGeometry(1,7,80),
+  wallMaterial
+);
+
+leftWall.position.set(-14,3.5,0);
+scene.add(leftWall);
+
+const rightWall = leftWall.clone();
+rightWall.position.x = 14;
+scene.add(rightWall);
+
+
+/* CEILING */
+
+const ceiling = new THREE.Mesh(
+  new THREE.BoxGeometry(28,1,80),
+  new THREE.MeshStandardMaterial({
+    color:0x0d0b0a
+  })
+);
+
+ceiling.position.set(0,7,0);
+scene.add(ceiling);
+
+
+/* PATH LIGHTS */
+
+const pathMaterial = new THREE.MeshStandardMaterial({
+  color:0x8a7354,
+  emissive:0x332515,
+  emissiveIntensity:0.8
 });
 
-renderer.domElement.addEventListener("pointermove",e=>{
-  if(!dragging)return;
+for(let z=15; z>-36; z-=4){
 
-  const dx=e.clientX-lastX;
-  const dy=e.clientY-lastY;
-
-  camera.rotation.y-=dx*0.004;
-  camera.rotation.x-=dy*0.003;
-
-  camera.rotation.x=Math.max(
-    -Math.PI/2.2,
-    Math.min(Math.PI/2.2,camera.rotation.x)
+  const light = new THREE.Mesh(
+    new THREE.BoxGeometry(1.2,0.04,0.35),
+    pathMaterial
   );
 
-  lastX=e.clientX;
-  lastY=e.clientY;
+  light.position.set(0,0.025,z);
+  scene.add(light);
+
+}
+
+
+/* PHOTO LIGHTS */
+
+for(let z=10; z>-35; z-=10){
+
+  const lamp = new THREE.PointLight(
+    0xffe8bd,
+    4,
+    9
+  );
+
+  lamp.position.set(0,4.8,z);
+  lamp.castShadow = true;
+  scene.add(lamp);
+
+}
+
+
+/* VERY SOFT AMBIENT LIGHT */
+
+const ambient = new THREE.HemisphereLight(
+  0x403b34,
+  0x080706,
+  0.35
+);
+
+scene.add(ambient);
+
+
+/* MOVEMENT */
+
+const keys = {};
+
+window.addEventListener("keydown",function(event){
+  keys[event.key.toLowerCase()] = true;
 });
-addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
-addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+
+window.addEventListener("keyup",function(event){
+  keys[event.key.toLowerCase()] = false;
+});
+
 
 function move(){
-const speed=.09;
-if(keys.w||keys.arrowup)camera.position.z-=speed;
-if(keys.s||keys.arrowdown)camera.position.z+=speed;
-if(keys.a||keys.arrowleft)camera.position.x-=speed;
-if(keys.d||keys.arrowright)camera.position.x+=speed;
 
-camera.position.x=Math.max(-6.3,Math.min(6.3,camera.position.x));
-camera.position.z=Math.max(-2.3,Math.min(7.5,camera.position.z));
+  const speed = 0.10;
+
+  if(keys["w"] || keys["arrowup"]){
+    camera.position.z -= speed;
+  }
+
+  if(keys["s"] || keys["arrowdown"]){
+    camera.position.z += speed;
+  }
+
+  if(keys["a"] || keys["arrowleft"]){
+    camera.position.x -= speed;
+  }
+
+  if(keys["d"] || keys["arrowright"]){
+    camera.position.x += speed;
+  }
+
+  camera.position.x = Math.max(-12,Math.min(12,camera.position.x));
+  camera.position.z = Math.max(-38,Math.min(18,camera.position.z));
+
 }
+
+
+/* RESIZE */
+
+window.addEventListener("resize",function(){
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+
+});
+
+
+/* ANIMATION */
 
 function animate(){
-requestAnimationFrame(animate);
-move();
-renderer.render(scene,camera);
+
+  requestAnimationFrame(animate);
+
+  move();
+
+  renderer.render(scene,camera);
+
 }
+
 animate();
 
-addEventListener("resize",()=>{
-camera.aspect=innerWidth/innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize(innerWidth,innerHeight);
-});
 </script>
+
 </body>
 </html>
