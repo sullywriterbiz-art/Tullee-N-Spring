@@ -1,1 +1,619 @@
 
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tullee and Spring</title>
+
+<style>
+html,body {
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#080706;
+}
+
+canvas { display:block; }
+
+#title {
+  position:fixed;
+  top:22px;
+  left:28px;
+  z-index:10;
+  color:#eee6d8;
+  font:24px Georgia,serif;
+  letter-spacing:2px;
+}
+
+#instructions {
+  position:fixed;
+  bottom:20px;
+  left:28px;
+  z-index:10;
+  color:#c0b5a4;
+  font:13px Arial,sans-serif;
+  line-height:1.7;
+  max-width:65%;
+}
+
+#status {
+  position:fixed;
+  top:60px;
+  left:28px;
+  z-index:10;
+  color:#c8b99f;
+  font:13px Arial,sans-serif;
+}
+
+#sound {
+  position:fixed;
+  top:20px;
+  right:24px;
+  z-index:20;
+  padding:10px 16px;
+  color:#eee6d8;
+  background:#30271d;
+  border:1px solid #806b4e;
+  cursor:pointer;
+}
+
+#music {
+  position:fixed;
+  bottom:20px;
+  right:24px;
+  z-index:10;
+  color:#eee6d8;
+  font:13px Arial,sans-serif;
+  background:#17130f;
+  padding:10px 14px;
+  border:1px solid #514332;
+  cursor:pointer;
+}
+
+#message {
+  position:fixed;
+  inset:0;
+  z-index:30;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(8,7,6,.88);
+  color:#eee6d8;
+  text-align:center;
+  font:20px Georgia,serif;
+  padding:30px;
+}
+
+#message button {
+  display:block;
+  margin:24px auto 0;
+  padding:12px 24px;
+  background:#59452e;
+  color:white;
+  border:1px solid #b49a70;
+  font-size:15px;
+  cursor:pointer;
+}
+
+@media(max-width:600px) {
+  #title {font-size:19px;left:16px;top:15px}
+  #instructions {left:16px;bottom:12px;font-size:11px}
+  #status {left:16px;top:48px}
+  #sound {right:12px;top:12px;padding:8px}
+  #music {right:12px;bottom:12px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="title">TULLEE AND SPRING</div>
+<div id="status">The beginning of the trail</div>
+
+<div id="instructions">
+W / S or ↑ / ↓ — Walk forward / backward<br>
+A / D — Move sideways · ← / → — Look around
+</div>
+
+<button id="sound">Enable sound</button>
+<button id="music">Play / Pause</button>
+
+<div id="message">
+  <div>
+    <div>Welcome to Tullee &amp; Spring</div>
+    <div style="font-size:15px;margin-top:12px">
+      A journey told through photographs, poems, and music.
+    </div>
+    <button id="enter">Enter the gallery</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+/* SCENE */
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x080706);
+scene.fog = new THREE.FogExp2(0x080706,0.025);
+
+const camera = new THREE.PerspectiveCamera(
+  70,window.innerWidth/window.innerHeight,0.1,120
+);
+
+camera.position.set(0,1.7,36);
+camera.rotation.order = "YXZ";
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+
+/* FLOOR */
+
+const floorTexture = new THREE.TextureLoader().load(
+  "https://threejs.org/examples/textures/hardwood2_diffuse.jpg"
+);
+
+floorTexture.wrapS = THREE.RepeatWrapping;
+floorTexture.wrapT = THREE.RepeatWrapping;
+floorTexture.repeat.set(8,24);
+
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,80),
+  new THREE.MeshStandardMaterial({
+    map:floorTexture,
+    roughness:0.65
+  })
+);
+
+floor.rotation.x = -Math.PI/2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+
+/* WALLS */
+
+const wallMaterial = new THREE.MeshStandardMaterial({
+  color:0x171411,
+  roughness:0.9
+});
+
+for(const x of [-14,14]) {
+  const wall = new THREE.Mesh(
+    new THREE.BoxGeometry(1,7,80),
+    wallMaterial
+  );
+  wall.position.set(x,3.5,0);
+  scene.add(wall);
+}
+
+
+/* CEILING */
+
+const ceiling = new THREE.Mesh(
+  new THREE.BoxGeometry(28,1,80),
+  new THREE.MeshStandardMaterial({color:0x0d0b0a})
+);
+ceiling.position.y = 7;
+scene.add(ceiling);
+
+
+/* LIGHTING */
+
+scene.add(new THREE.HemisphereLight(
+  0x403b34,0x080706,0.35
+));
+
+const pathMaterial = new THREE.MeshStandardMaterial({
+  color:0x8a7354,
+  emissive:0x332515,
+  emissiveIntensity:0.8
+});
+
+for(let z=30;z>-37;z-=3.5) {
+  const light = new THREE.Mesh(
+    new THREE.BoxGeometry(1.2,0.04,0.35),
+    pathMaterial
+  );
+  light.position.set(0,0.025,z);
+  scene.add(light);
+}
+
+
+/* ENTRANCE PHOTOGRAPH */
+
+const loader = new THREE.TextureLoader();
+
+function addPicture(file,x,y,z,width,height,rotationY=0) {
+  const frame = new THREE.Mesh(
+    new THREE.BoxGeometry(width+0.25,height+0.25,0.16),
+    new THREE.MeshStandardMaterial({color:0x493722})
+  );
+
+  frame.position.set(x,y,z);
+  frame.rotation.y = rotationY;
+  scene.add(frame);
+
+  loader.load(
+    file,
+    texture => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      const picture = new THREE.Mesh(
+        new THREE.PlaneGeometry(width,height),
+        new THREE.MeshBasicMaterial({map:texture})
+      );
+      picture.position.set(x,y,z);
+      picture.rotation.y = rotationY;
+      scene.add(picture);
+    },
+    undefined,
+    () => console.error("Could not load photograph:",file)
+  );
+}
+
+/* Suspended entrance image */
+addPicture("TheTrail.jpg",0,4.1,30.5,5.2,3.5);
+
+
+/* INSTALLATION INVENTORY */
+
+const installations = [
+  {
+    title:"HorseHills",
+    photo:"HorseHills.jpg",
+    poem:"HorseHills.png",
+    song:"horse hills.mp3"
+  },
+  {
+    title:"Daughters Four",
+    photo:"Daughters Four.jpg",
+    poem:"Daughters Four.png",
+    song:"Daughters Four.mp3"
+  },
+  {
+    title:"Ode to Tullee",
+    photo:"Ode to Tullee.jpg",
+    poem:"Ode to Tullee.png",
+    song:"Ode to Tullee.mp3"
+  },
+  {
+    title:"Fall Loves Death",
+    photo:"Fall Loves Death.jpg",
+    poem:"Fall Loves Death.png",
+    song:"fall loves death.mp3"
+  },
+  {
+    title:"Order",
+    photo:"Order.jpg",
+    poem:"Order Called.png",
+    song:"Order.mp3"
+  },
+  {
+    title:"Regrets",
+    photo:"Regrets.jpg",
+    poem:"Regrets.png",
+    song:"Regrets.mp3"
+  },
+  {
+    title:"Apology",
+    photo:"Apology.jpg",
+    poem:"Apology.png",
+    song:"Apology.mp3"
+  },
+  {
+    title:"Hawk",
+    photo:"Hawk.jpg",
+    poem:"Hawk.png",
+    song:"Hawk.mp3"
+  },
+  {
+    title:"Lady Bug",
+    photo:"Lady Bug.jpg",
+    poem:"Lady Bugs.png",
+    song:"Lady Bugs.mp3"
+  },
+  {
+    title:"Two Bucks",
+    photo:"Two Bucks.jpg",
+    poem:"Two Bucks.png",
+    song:"Two Bucks.mp3"
+  },
+  {
+    title:"Messy Ending",
+    photo:"Messy Ending.jpg",
+    poem:"Messy Endings.png",
+    song:"Messy Ending.mp3"
+  },
+  {
+    title:"Above",
+    photo:"Above.jpg",
+    poem:"Above.png",
+    song:"Above.mp3"
+  }
+];
+
+
+/* DISPLAY EACH INSTALLATION */
+
+function addInstallation(item,index) {
+
+  const z = 24-index*4.5;
+  const side = index%2===0 ? -1 : 1;
+  const x = side*10.5;
+  const rotation = side===-1 ? Math.PI/2 : -Math.PI/2;
+
+  /* Photograph */
+  addPicture(
+    item.photo,x,3.25,z,3.4,4.8,rotation
+  );
+
+  /* Framed poem */
+  const poemFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(2.0,2.8,0.15),
+    new THREE.MeshStandardMaterial({color:0x493722})
+  );
+
+  poemFrame.position.set(x-side*0.02,2.35,z-2.65);
+  poemFrame.rotation.y = rotation;
+  scene.add(poemFrame);
+
+  loader.load(
+    "assets/poems/"+item.poem,
+    texture => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      const poem = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.85,2.65),
+        new THREE.MeshBasicMaterial({map:texture})
+      );
+      poem.position.set(x,2.35,z-2.65);
+      poem.rotation.y = rotation;
+      scene.add(poem);
+    },
+    undefined,
+    () => console.error("Could not load poem:",item.poem)
+  );
+
+  /* Small wooden trail sign */
+  const post = new THREE.Mesh(
+    new THREE.BoxGeometry(0.12,1.2,0.12),
+    new THREE.MeshStandardMaterial({color:0x493722})
+  );
+  post.position.set(side*-5,0.6,z-1.7);
+  scene.add(post);
+
+  const sign = new THREE.Mesh(
+    new THREE.BoxGeometry(1.5,0.35,0.12),
+    new THREE.MeshStandardMaterial({color:0x60492e})
+  );
+  sign.position.set(side*-5,1.05,z-1.7);
+  scene.add(sign);
+
+  /* Warm light at each artwork */
+  const lamp = new THREE.PointLight(
+    index===11 ? 0xffe8c0 : 0xffdca8,
+    index===11 ? 6 : 3.5,
+    index===11 ? 15 : 9
+  );
+
+  lamp.position.set(x-side*2,4.8,z);
+  scene.add(lamp);
+}
+
+installations.forEach(addInstallation);
+
+
+/* ENTRANCE LIGHT */
+
+const entranceLight = new THREE.PointLight(0xffe8bd,3,12);
+entranceLight.position.set(0,5,30);
+scene.add(entranceLight);
+
+
+/* ROCKS ALONG THE TRAIL */
+
+const rockMaterial = new THREE.MeshStandardMaterial({
+  color:0x514b40,
+  roughness:1
+});
+
+for(let z=27;z>-35;z-=1.8) {
+  for(const side of [-1,1]) {
+    const rock = new THREE.Mesh(
+      new THREE.DodecahedronGeometry(
+        0.18+Math.random()*0.13,0
+      ),
+      rockMaterial
+    );
+    rock.position.set(
+      side*(2.1+Math.random()*0.35),
+      0.15,
+      z+(Math.random()-0.5)*0.5
+    );
+    rock.scale.y = 0.65;
+    scene.add(rock);
+  }
+}
+
+
+/* MUSIC */
+
+let currentAudio = null;
+let currentInstallation = -1;
+let soundEnabled = false;
+
+function startSong(index) {
+
+  if(index===currentInstallation) return;
+
+  const item = installations[index];
+  const previous = currentAudio;
+
+  currentInstallation = index;
+
+  const audio = new Audio("assets/music/"+item.song);
+  audio.volume = 0;
+  currentAudio = audio;
+
+  if(soundEnabled) {
+    audio.play().then(() => {
+      let volume = 0;
+      const fadeIn = setInterval(() => {
+        volume += 0.05;
+        audio.volume = Math.min(volume,0.7);
+        if(volume>=0.7) clearInterval(fadeIn);
+      },100);
+    }).catch(() => {
+      document.getElementById("status").textContent =
+        "Use Enable sound to hear the music";
+    });
+  }
+
+  if(previous) {
+    const oldVolume = previous.volume;
+    const fadeOut = setInterval(() => {
+      previous.volume = Math.max(0,previous.volume-0.08);
+      if(previous.volume<=0) {
+        clearInterval(fadeOut);
+        previous.pause();
+      }
+    },100);
+  }
+
+  document.getElementById("music").textContent =
+    "Play / Pause — "+item.title;
+
+  document.getElementById("status").textContent =
+    "Installation "+(index+1)+" of 12 — "+item.title;
+}
+
+document.getElementById("sound").addEventListener("click",() => {
+  soundEnabled = true;
+  document.getElementById("sound").textContent = "Sound enabled";
+
+  if(currentAudio && currentAudio.paused) {
+    currentAudio.play().catch(()=>{});
+  }
+});
+
+document.getElementById("music").addEventListener("click",() => {
+  if(!currentAudio) return;
+
+  if(currentAudio.paused) {
+    currentAudio.play().catch(()=>{});
+  } else {
+    currentAudio.pause();
+  }
+});
+
+
+/* MOVEMENT */
+
+const keys = {};
+
+window.addEventListener("keydown",event => {
+  const key = event.key.toLowerCase();
+  keys[key] = true;
+
+  if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)) {
+    event.preventDefault();
+  }
+});
+
+window.addEventListener("keyup",event => {
+  keys[event.key.toLowerCase()] = false;
+});
+
+let nextInstallation = 0;
+let entered = false;
+
+document.getElementById("enter").addEventListener("click",() => {
+  document.getElementById("message").style.display = "none";
+  entered = true;
+  soundEnabled = true;
+  document.getElementById("sound").textContent = "Sound enabled";
+});
+
+function move() {
+
+  if(!entered) return;
+
+  const speed = 0.075;
+  const turnSpeed = 0.025;
+
+  if(keys["arrowleft"]) camera.rotation.y += turnSpeed;
+  if(keys["arrowright"]) camera.rotation.y -= turnSpeed;
+
+  const forward = new THREE.Vector3(0,0,-1)
+    .applyEuler(camera.rotation);
+  const right = new THREE.Vector3(1,0,0)
+    .applyEuler(camera.rotation);
+
+  if(keys["w"] || keys["arrowup"]) {
+    camera.position.addScaledVector(forward,speed);
+  }
+
+  if(keys["s"] || keys["arrowdown"]) {
+    camera.position.addScaledVector(forward,-speed);
+  }
+
+  if(keys["a"]) camera.position.addScaledVector(right,-speed);
+  if(keys["d"]) camera.position.addScaledVector(right,speed);
+
+  camera.position.x = THREE.MathUtils.clamp(
+    camera.position.x,-12,12
+  );
+
+  camera.position.z = THREE.MathUtils.clamp(
+    camera.position.z,-38,38
+  );
+
+  /* Stop visitors from passing the next installation */
+  if(nextInstallation<installations.length) {
+    const targetZ = 24-nextInstallation*4.5;
+
+    if(camera.position.z<targetZ-1.3) {
+      camera.position.z=targetZ-1.3;
+    }
+
+    if(Math.abs(camera.position.z-targetZ)<1.4) {
+      startSong(nextInstallation);
+      nextInstallation++;
+    }
+  }
+
+  if(nextInstallation===12) {
+    document.getElementById("status").textContent =
+      "The end of the trail — Above";
+  }
+}
+
+
+/* RESIZE */
+
+window.addEventListener("resize",() => {
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+
+/* ANIMATION */
+
+function animate() {
+  requestAnimationFrame(animate);
+  move();
+  renderer.render(scene,camera);
+}
+
+animate();
+
+</script>
+</body>
+</html>
