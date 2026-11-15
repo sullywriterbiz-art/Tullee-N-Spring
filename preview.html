@@ -6,74 +6,143 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Tullee & Spring</title>
+
 <style>
 * { box-sizing:border-box; }
+
 html,body {
-  margin:0; width:100%; height:100%; overflow:hidden;
-  background:#080706; color:#eee6d8;
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#080706;
+  color:#eee6d8;
   font-family:Georgia,serif;
 }
+
 canvas { display:block; }
+
 #title {
-  position:fixed; top:20px; left:24px; z-index:5;
-  font-size:22px; letter-spacing:3px;
+  position:fixed;
+  top:20px;
+  left:24px;
+  z-index:5;
+  font-size:22px;
+  letter-spacing:3px;
   text-shadow:0 2px 8px #000;
   pointer-events:none;
 }
+
 #instructions {
-  position:fixed; bottom:18px; left:24px; z-index:5;
-  color:#c4b9a8; font:12px Arial,sans-serif;
+  position:fixed;
+  bottom:18px;
+  left:24px;
+  z-index:5;
+  color:#c4b9a8;
+  font:12px Arial,sans-serif;
   text-shadow:0 2px 6px #000;
   pointer-events:none;
 }
+
 #status {
-  position:fixed; top:20px; right:22px; z-index:5;
-  color:#d7c6a9; font:12px Arial,sans-serif;
-  text-align:right; text-shadow:0 2px 6px #000;
+  position:fixed;
+  top:20px;
+  right:22px;
+  z-index:5;
+  color:#d7c6a9;
+  font:12px Arial,sans-serif;
+  text-align:right;
+  text-shadow:0 2px 6px #000;
   pointer-events:none;
 }
+
 #enter {
-  position:fixed; inset:0; z-index:20;
-  display:flex; align-items:center; justify-content:center;
-  background:rgba(5,5,4,.88);
-  text-align:center; padding:24px;
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(5,5,4,.9);
+  text-align:center;
+  padding:24px;
 }
+
 #enterBox { max-width:520px; }
+
 #enter h1 {
   font-size:clamp(28px,5vw,46px);
-  font-weight:normal; letter-spacing:4px; margin:0 0 18px;
+  font-weight:normal;
+  letter-spacing:4px;
+  margin:0 0 18px;
 }
-#enter p { color:#c7bdad; line-height:1.7; }
+
+#enter p {
+  color:#c7bdad;
+  line-height:1.7;
+}
+
 #enter button,#audioButton {
-  border:1px solid #a48a62; background:#30271d;
-  color:#f2e6d2; padding:13px 25px;
-  font:15px Georgia,serif; cursor:pointer;
+  border:1px solid #a48a62;
+  background:#30271d;
+  color:#f2e6d2;
+  padding:13px 25px;
+  font:15px Georgia,serif;
+  cursor:pointer;
 }
+
 #enter button { margin-top:18px; }
+
 #audioButton {
-  position:fixed; z-index:6; right:20px; bottom:18px;
-  padding:8px 12px; font:12px Arial,sans-serif;
+  position:fixed;
+  z-index:6;
+  right:20px;
+  bottom:18px;
+  padding:8px 12px;
+  font:12px Arial,sans-serif;
   opacity:.85;
 }
+
 #touchControls {
-  position:fixed; z-index:8; bottom:62px; left:18px;
-  display:none; gap:7px; align-items:center;
-  user-select:none; -webkit-user-select:none;
+  position:fixed;
+  z-index:8;
+  bottom:62px;
+  left:18px;
+  display:none;
+  gap:7px;
+  align-items:center;
+  user-select:none;
+  -webkit-user-select:none;
 }
+
 #touchControls button {
-  width:48px; height:48px; border-radius:50%;
-  border:1px solid #a48a62; background:rgba(35,29,22,.78);
-  color:#f2e6d2; font-size:19px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:1px solid #a48a62;
+  background:rgba(35,29,22,.78);
+  color:#f2e6d2;
+  font-size:19px;
   touch-action:none;
 }
+
 #touchControls .middle {
-  display:flex; flex-direction:column; gap:7px;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
 }
+
 #touchHint {
-  position:fixed; z-index:5; bottom:18px; right:20px;
-  font:11px Arial,sans-serif; color:#c4b9a8;
-  text-shadow:0 2px 6px #000; pointer-events:none;
+  position:fixed;
+  z-index:5;
+  bottom:18px;
+  right:20px;
+  font:11px Arial,sans-serif;
+  color:#c4b9a8;
+  text-shadow:0 2px 6px #000;
+  pointer-events:none;
 }
+
 @media (pointer:coarse) {
   #touchControls { display:flex; }
   #instructions { display:none; }
@@ -81,11 +150,16 @@ canvas { display:block; }
 }
 </style>
 </head>
+
 <body>
 
 <div id="title">TULLEE & SPRING</div>
 <div id="status">THE GALLERY</div>
-<div id="instructions">W / S — walk &nbsp; A / D — move along trail &nbsp; Arrow keys — look</div>
+
+<div id="instructions">
+W / S — walk &nbsp; A / D — move sideways &nbsp; Arrow keys — look
+</div>
+
 <div id="touchHint">Drag to look around</div>
 <button id="audioButton">Pause music</button>
 
@@ -104,37 +178,49 @@ canvas { display:block; }
   <div id="enterBox">
     <h1>TULLEE & SPRING</h1>
     <p>A story told through twelve photographs, twelve poems, and twelve songs.</p>
-    <p>Enter the gallery. Follow the trail. Take your time.</p>
+    <p>Enter the woodland. Follow the trail. Take your time.</p>
     <button id="enterButton">Enter the gallery</button>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
 <script>
 (() => {
 "use strict";
 
+if (!window.THREE) {
+  document.getElementById("enterBox").innerHTML =
+    "<h1>TULLEE & SPRING</h1><p>The 3D library could not load. Please check your internet connection and reload.</p>";
+  return;
+}
+
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x080706);
-scene.fog = new THREE.FogExp2(0x080706, 0.018);
+
+scene.background = new THREE.Color(0x080a08);
+scene.fog = new THREE.FogExp2(0x080a08,0.0015);
 
 const camera = new THREE.PerspectiveCamera(
-  70, innerWidth / innerHeight, 0.1, 150
+  70,innerWidth/innerHeight,0.1,1500
 );
-camera.position.set(0, 1.7, 30);
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
+
 document.body.appendChild(renderer.domElement);
 
 const loader = new THREE.TextureLoader();
 const clock = new THREE.Clock();
+
+// --------------------------------------------------
+// PHOTOGRAPHS, POEMS AND MUSIC
+// --------------------------------------------------
 
 const photos = [
   "HorseHills.jpg",
@@ -186,204 +272,290 @@ const installations = photos.map((photo,i) => ({
   poem:poems[i],
   song:songs[i],
   number:i+1,
-  t:0.105 + i*0.071,
+  t:0.105+i*0.071,
   side:i%2===0 ? 1 : -1
 }));
 
-// Room
-const floorTexture = loader.load(
-  "https://threejs.org/examples/textures/hardwood2_diffuse.jpg"
-);
-floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-floorTexture.repeat.set(5,16);
-floorTexture.colorSpace = THREE.SRGBColorSpace;
+// --------------------------------------------------
+// OPEN WOODLAND ENVIRONMENT
+// --------------------------------------------------
 
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(28,80),
+// The walking environment is greatly expanded.
+// Displays remain human-sized.
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(300,800),
   new THREE.MeshStandardMaterial({
-    map:floorTexture, roughness:.72, metalness:0
+    color:0x29251d,
+    roughness:1
   })
 );
-floor.rotation.x = -Math.PI/2;
-floor.position.set(0,0,-2);
-floor.receiveShadow = true;
-scene.add(floor);
 
-const wallMaterial = new THREE.MeshStandardMaterial({
-  color:0x171411, roughness:.95
-});
-const leftWall = new THREE.Mesh(
-  new THREE.BoxGeometry(1,7,80),wallMaterial
+ground.rotation.x=-Math.PI/2;
+ground.position.set(0,-.12,-20);
+ground.receiveShadow=true;
+scene.add(ground);
+
+// Natural woodland lighting
+
+scene.add(
+  new THREE.HemisphereLight(0x82917a,0x211b12,.75)
 );
-leftWall.position.set(-14,3.5,-2);
-scene.add(leftWall);
 
-const rightWall = leftWall.clone();
-rightWall.position.x=14;
-scene.add(rightWall);
-
-const ceiling = new THREE.Mesh(
-  new THREE.BoxGeometry(28,1,80),
-  new THREE.MeshStandardMaterial({color:0x0d0b0a})
-);
-ceiling.position.set(0,7,-2);
-scene.add(ceiling);
-
-// Warm, low ambient light
-scene.add(new THREE.HemisphereLight(0x6c6251,0x100d09,.42));
-
-const ambient = new THREE.PointLight(0x9b7950,1.1,65);
-ambient.position.set(0,5,25);
+const ambient = new THREE.PointLight(0x9b7950,1.5,100);
+ambient.position.set(0,9,290);
 scene.add(ambient);
 
-// The trail is a smooth winding route through the room.
+// --------------------------------------------------
+// WINDING WOODLAND TRAIL
+// --------------------------------------------------
+
 const routePoints = [
-  new THREE.Vector3(0,0,31),
-  new THREE.Vector3(-1,0,25),
-  new THREE.Vector3(-4,0,19),
-  new THREE.Vector3(-5,0,13),
-  new THREE.Vector3(-2,0,7),
-  new THREE.Vector3(3,0,1),
-  new THREE.Vector3(5,0,-5),
-  new THREE.Vector3(2,0,-11),
-  new THREE.Vector3(-3,0,-17),
-  new THREE.Vector3(-4,0,-23),
-  new THREE.Vector3(0,0,-29),
-  new THREE.Vector3(3,0,-34)
+  new THREE.Vector3(0,0,310),
+  new THREE.Vector3(-10,0,250),
+  new THREE.Vector3(-40,0,190),
+  new THREE.Vector3(-50,0,130),
+  new THREE.Vector3(-20,0,70),
+  new THREE.Vector3(30,0,10),
+  new THREE.Vector3(50,0,-50),
+  new THREE.Vector3(20,0,-110),
+  new THREE.Vector3(-30,0,-170),
+  new THREE.Vector3(-40,0,-230),
+  new THREE.Vector3(0,0,-290),
+  new THREE.Vector3(30,0,-340)
 ];
 
 const route = new THREE.CatmullRomCurve3(routePoints);
 const routeLength = route.getLength();
 
 function pointAt(t) {
-  return route.getPointAt(THREE.MathUtils.clamp(t,0,1));
-}
-function tangentAt(t) {
-  return route.getTangentAt(THREE.MathUtils.clamp(t,0,1)).normalize();
-}
-function sideAt(t) {
-  const tangent=tangentAt(t);
-  return new THREE.Vector3(-tangent.z,0,tangent.x).normalize();
+  return route.getPointAt(
+    THREE.MathUtils.clamp(t,0,1)
+  );
 }
 
+function tangentAt(t) {
+  return route.getTangentAt(
+    THREE.MathUtils.clamp(t,0,1)
+  ).normalize();
+}
+
+function sideAt(t) {
+  const tangent=tangentAt(t);
+  return new THREE.Vector3(
+    -tangent.z,0,tangent.x
+  ).normalize();
+}
+
+// Earthy trail
+
 const trail = new THREE.Mesh(
-  new THREE.TubeGeometry(route,260,.72,8,false),
+  new THREE.TubeGeometry(route,500,2.5,10,false),
   new THREE.MeshStandardMaterial({
-    color:0x594630, roughness:1
+    color:0x594630,
+    roughness:1
   })
 );
+
 trail.position.y=.04;
 scene.add(trail);
 
-// A darker walking surface over the trail
-const pathShape = new THREE.Shape();
-pathShape.moveTo(-.85,0);
-pathShape.lineTo(.85,0);
-pathShape.lineTo(.85,1);
-pathShape.lineTo(-.85,1);
-pathShape.closePath();
+// --------------------------------------------------
+// ROCKS ALONG THE TRAIL
+// --------------------------------------------------
 
-// Rocks along both sides of the trail
 const rockMaterial = new THREE.MeshStandardMaterial({
-  color:0x62594b, roughness:1
+  color:0x62594b,
+  roughness:1
 });
-const rockGeometry = new THREE.DodecahedronGeometry(.35,0);
 
-for(let i=0;i<150;i++) {
-  const t=.015 + i/150*.97;
+const rockGeometry = new THREE.DodecahedronGeometry(.65,0);
+
+for(let i=0;i<240;i++) {
+  const t=.008+i/240*.98;
   const p=pointAt(t);
   const side=sideAt(t);
+
   for(const s of [-1,1]) {
     const rock=new THREE.Mesh(rockGeometry,rockMaterial);
-    const offset=.95 + Math.random()*.35;
+
+    const offset=7+Math.random()*3.5;
+
     rock.position.set(
       p.x+side.x*s*offset,
-      .17+Math.random()*.13,
+      .35+Math.random()*.2,
       p.z+side.z*s*offset
     );
-    const scale=.65+Math.random()*.9;
-    rock.scale.set(scale,.55+Math.random()*.7,scale);
-    rock.rotation.set(Math.random(),Math.random()*3,Math.random());
+
+    const scale=.65+Math.random()*1.3;
+
+    rock.scale.set(
+      scale,
+      .55+Math.random()*.8,
+      scale
+    );
+
+    rock.rotation.set(
+      Math.random(),
+      Math.random()*3,
+      Math.random()
+    );
+
     rock.castShadow=true;
     rock.receiveShadow=true;
     scene.add(rock);
   }
 }
 
-// Trees and natural details near the walls
-const trunkMaterial = new THREE.MeshStandardMaterial({color:0x403022});
-const leafMaterial = new THREE.MeshStandardMaterial({
-  color:0x263326, roughness:1
+// --------------------------------------------------
+// TREES AND WOODLAND DETAILS
+// --------------------------------------------------
+
+const trunkMaterial = new THREE.MeshStandardMaterial({
+  color:0x403022,
+  roughness:1
 });
-function addTree(x,z,size=1) {
+
+const leafMaterials = [
+  new THREE.MeshStandardMaterial({color:0x263326,roughness:1}),
+  new THREE.MeshStandardMaterial({color:0x34422d,roughness:1}),
+  new THREE.MeshStandardMaterial({color:0x1c2b20,roughness:1})
+];
+
+function addTree(x,z,size=3) {
+
   const trunk=new THREE.Mesh(
-    new THREE.CylinderGeometry(.18*size,.3*size,3.5*size,7),
+    new THREE.CylinderGeometry(
+      .22*size,.42*size,4.5*size,8
+    ),
     trunkMaterial
   );
-  trunk.position.set(x,1.75*size,z);
+
+  trunk.position.set(x,2.25*size,z);
   trunk.castShadow=true;
   scene.add(trunk);
 
-  for(let i=0;i<3;i++) {
+  for(let i=0;i<4;i++) {
     const crown=new THREE.Mesh(
-      new THREE.DodecahedronGeometry(1.25*size-i*.13,1),
-      leafMaterial
+      new THREE.DodecahedronGeometry(
+        1.35*size-i*.12*size,1
+      ),
+      leafMaterials[i%leafMaterials.length]
     );
+
     crown.position.set(
-      x+(Math.random()-.5)*.5*size,
-      3.2*size+i*.45*size,
-      z+(Math.random()-.5)*.5*size
+      x+(Math.random()-.5)*.6*size,
+      3.4*size+i*.8*size,
+      z+(Math.random()-.5)*.6*size
     );
+
+    crown.scale.set(
+      1,
+      1.15,
+      1
+    );
+
     crown.castShadow=true;
     scene.add(crown);
   }
 }
-[
-  [-10,22], [10,16], [-11,3], [10,-8],
-  [-10,-20], [10,-29]
-].forEach(([x,z],i)=>addTree(x,z,.8+(i%2)*.25));
 
-// Cover photograph suspended over the entrance
+// Trees distributed along the woodland route.
+// Leave the central walking trail open.
+
+for(let i=0;i<30;i++) {
+  const t=.015+i/30*.97;
+  const p=pointAt(t);
+  const side=sideAt(t);
+
+  for(const s of [-1,1]) {
+    const offset=38+Math.random()*28;
+
+    addTree(
+      p.x+side.x*s*offset,
+      p.z+side.z*s*offset,
+      2.2+Math.random()*1.8
+    );
+  }
+}
+
+// Additional woodland trees for depth
+
+[
+  [-105,260],[95,220],[-115,110],[105,45],
+  [-100,-65],[110,-150],[-95,-245],[105,-300],
+  [-65,330],[75,-350]
+].forEach(([x,z],i)=>{
+  addTree(x,z,2.5+(i%3)*.65);
+});
+
+// --------------------------------------------------
+// ENTRANCE COVER PHOTOGRAPH
+// --------------------------------------------------
+
 function addCover() {
+
   const group=new THREE.Group();
+
   const frame=new THREE.Mesh(
-    new THREE.BoxGeometry(7.2,4.8,.28),
-    new THREE.MeshStandardMaterial({color:0x392b1e,roughness:.8})
+    new THREE.BoxGeometry(9,6,.35),
+    new THREE.MeshStandardMaterial({
+      color:0x392b1e,
+      roughness:.8
+    })
   );
+
   group.add(frame);
 
   const tex=loader.load("TheTrail.jpg",t=>{
     t.colorSpace=THREE.SRGBColorSpace;
     t.anisotropy=renderer.capabilities.getMaxAnisotropy();
   });
+
   const image=new THREE.Mesh(
-    new THREE.PlaneGeometry(6.8,4.4),
-    new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide})
+    new THREE.PlaneGeometry(8.6,5.6),
+    new THREE.MeshBasicMaterial({
+      map:tex,
+      side:THREE.DoubleSide
+    })
   );
-  image.position.z=.16;
+
+  image.position.z=.2;
   group.add(image);
-  group.position.set(0,4.7,25.5);
+
+  group.position.set(0,5,255);
   scene.add(group);
 
-  const light=new THREE.PointLight(0xffdca8,2,12);
-  light.position.set(0,5.2,23);
+  const light=new THREE.PointLight(0xffdca8,3,35);
+  light.position.set(0,8,240);
   scene.add(light);
 }
+
 addCover();
 
-// Installation display construction
-const displayLights=[];
-const displayPositions=[];
+// --------------------------------------------------
+// PHOTOGRAPH AND POEM DISPLAY CONSTRUCTION
+// --------------------------------------------------
 
-function makeImagePanel(file,width,height,position,yaw,frameColor) {
+const displayLights=[];
+const photoPositions=[];
+
+function makeImagePanel(
+  file,width,height,position,yaw,frameColor
+) {
+
   const group=new THREE.Group();
 
   const frame=new THREE.Mesh(
-    new THREE.BoxGeometry(width+.28,height+.28,.18),
+    new THREE.BoxGeometry(
+      width+.35,height+.35,.22
+    ),
     new THREE.MeshStandardMaterial({
-      color:frameColor, roughness:.75
+      color:frameColor,
+      roughness:.75
     })
   );
+
   group.add(frame);
 
   const texture=loader.load(
@@ -401,171 +573,332 @@ function makeImagePanel(file,width,height,position,yaw,frameColor) {
   const image=new THREE.Mesh(
     new THREE.PlaneGeometry(width,height),
     new THREE.MeshBasicMaterial({
-      map:texture, side:THREE.DoubleSide
+      map:texture,
+      side:THREE.DoubleSide
     })
   );
-  image.position.z=.105;
+
+  image.position.z=.13;
   group.add(image);
+
   group.position.copy(position);
   group.rotation.y=yaw;
+
   scene.add(group);
+
   return group;
 }
 
+// --------------------------------------------------
+// THE TWELVE INSTALLATIONS
+// --------------------------------------------------
+
 installations.forEach((item,i)=>{
+
   const p=pointAt(item.t);
   const side=sideAt(item.t);
   const tangent=tangentAt(item.t);
+
   const direction=side.clone().multiplyScalar(item.side);
 
-  // Display stands beside the path, facing inward.
-  const displayCenter=p.clone().addScaledVector(direction,4.1);
-  displayCenter.y=3.35;
+  // Each display has much more space around it.
+
+  const displayCenter=p.clone().addScaledVector(
+    direction,15
+  );
+
+  displayCenter.y=4.3;
 
   const towardPath=direction.clone().negate();
-  const yaw=Math.atan2(towardPath.x,towardPath.z);
 
-  // The photograph is the dominant element.
-  const photoPosition=displayCenter.clone();
-  photoPosition.addScaledVector(tangent,-1.15);
-  makeImagePanel(
-    item.photo,4.25,3.65,photoPosition,yaw,0x3b2c20
+  const yaw=Math.atan2(
+    towardPath.x,towardPath.z
   );
 
-  // The poem sits beside the photograph, smaller and framed.
+  // Main photograph
+
+  const photoPosition=displayCenter.clone();
+
+  photoPosition.addScaledVector(tangent,-3);
+
+  makeImagePanel(
+    item.photo,
+    8.5,
+    6.5,
+    photoPosition,
+    yaw,
+    0x3b2c20
+  );
+
+  photoPositions.push(photoPosition.clone());
+
+  // Poem display
+
   const poemPosition=displayCenter.clone();
-  poemPosition.addScaledVector(tangent,2.25);
+
+  poemPosition.addScaledVector(tangent,7);
+
   makeImagePanel(
     "assets/poems/"+item.poem,
-    1.65,2.45,poemPosition,yaw,0x4a3928
+    3.3,
+    4.8,
+    poemPosition,
+    yaw,
+    0x4a3928
   );
 
-  // Warm spotlight for each installation.
+  // Photograph spotlight
+
   const light=new THREE.SpotLight(
-    0xffdca7,0,13,Math.PI/3,.45,1
+    0xffdca7,
+    0,
+    45,
+    Math.PI/3,
+    .5,
+    1
   );
-  light.position.copy(displayCenter);
-  light.position.y=6.1;
+
+  light.position.copy(photoPosition);
+  light.position.y=12;
+
   const target=new THREE.Object3D();
-  target.position.copy(displayCenter);
-  target.y=2.5;
+
+  target.position.copy(photoPosition);
+  target.y=4;
+
   scene.add(target);
+
   light.target=target;
   light.castShadow=true;
+
   scene.add(light);
   displayLights.push(light);
 
-  displayPositions.push(p);
+  // Wooden trail sign
 
-  // Small wooden direction sign on the trail edge.
-  const signPosition=p.clone().addScaledVector(direction,1.65);
+  const signPosition=p.clone().addScaledVector(
+    direction,8.5
+  );
+
   const post=new THREE.Mesh(
-    new THREE.BoxGeometry(.12,1.15,.12),
+    new THREE.BoxGeometry(.3,2.3,.3),
     trunkMaterial
   );
-  post.position.set(signPosition.x,.58,signPosition.z);
+
+  post.position.set(
+    signPosition.x,1.15,signPosition.z
+  );
+
   scene.add(post);
 
   const board=new THREE.Mesh(
-    new THREE.BoxGeometry(1.25,.42,.12),
+    new THREE.BoxGeometry(2.6,.85,.2),
     new THREE.MeshStandardMaterial({
-      color:0x503a25,roughness:.9
+      color:0x503a25,
+      roughness:.9
     })
   );
-  board.position.set(signPosition.x,1.05,signPosition.z);
+
+  board.position.set(
+    signPosition.x,2.15,signPosition.z
+  );
+
   board.rotation.y=yaw;
   scene.add(board);
 
   const signText=document.createElement("canvas");
-  signText.width=256; signText.height=96;
+
+  signText.width=512;
+  signText.height=128;
+
   const ctx=signText.getContext("2d");
+
   ctx.fillStyle="#503a25";
-  ctx.fillRect(0,0,256,96);
+  ctx.fillRect(0,0,512,128);
+
   ctx.fillStyle="#ead8b9";
-  ctx.font="bold 42px Georgia";
+  ctx.font="bold 54px Georgia";
   ctx.textAlign="center";
-  ctx.fillText(i===11?"THE END":"→ "+(i+2),128,62);
+
+  ctx.fillText(
+    i===11?"THE END":"→ "+(i+2),
+    256,82
+  );
+
   const signTexture=new THREE.CanvasTexture(signText);
+
   const signFace=new THREE.Mesh(
-    new THREE.PlaneGeometry(1.15,.36),
+    new THREE.PlaneGeometry(2.45,.7),
     new THREE.MeshBasicMaterial({
-      map:signTexture,transparent:false,side:THREE.DoubleSide
+      map:signTexture,
+      side:THREE.DoubleSide
     })
   );
-  signFace.position.set(signPosition.x,1.05,signPosition.z);
+
+  signFace.position.set(
+    signPosition.x,2.15,signPosition.z
+  );
+
   signFace.rotation.y=yaw;
   scene.add(signFace);
 });
 
-// Opening trail sign
+// --------------------------------------------------
+// OPENING TRAIL SIGN
+// --------------------------------------------------
+
 function addOpeningSign() {
+
   const p=pointAt(.035);
+  const side=sideAt(.035);
+
+  const x=p.x+side.x*9;
+  const z=p.z+side.z*9;
+
   const post=new THREE.Mesh(
-    new THREE.BoxGeometry(.16,1.7,.16),trunkMaterial
+    new THREE.BoxGeometry(.3,3,.3),
+    trunkMaterial
   );
-  post.position.set(p.x+1.7,.85,p.z);
+
+  post.position.set(x,1.5,z);
   scene.add(post);
 
   const board=new THREE.Mesh(
-    new THREE.BoxGeometry(2.8,.65,.16),
-    new THREE.MeshStandardMaterial({color:0x503a25})
+    new THREE.BoxGeometry(5.5,1.2,.25),
+    new THREE.MeshStandardMaterial({
+      color:0x503a25
+    })
   );
-  board.position.set(p.x+1.7,1.7,p.z);
+
+  board.position.set(x,3,z);
   scene.add(board);
 
   const c=document.createElement("canvas");
-  c.width=512;c.height=128;
+
+  c.width=512;
+  c.height=128;
+
   const ctx=c.getContext("2d");
-  ctx.fillStyle="#503a25";ctx.fillRect(0,0,512,128);
+
+  ctx.fillStyle="#503a25";
+  ctx.fillRect(0,0,512,128);
+
   ctx.fillStyle="#ead8b9";
-  ctx.font="bold  forty 40px Georgia";
   ctx.font="40px Georgia";
   ctx.textAlign="center";
+
   ctx.fillText("TULLEE & SPRING",256,82);
+
   const tex=new THREE.CanvasTexture(c);
+
   const face=new THREE.Mesh(
-    new THREE.PlaneGeometry(2.65,.58),
-    new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide})
+    new THREE.PlaneGeometry(5.3,1.1),
+    new THREE.MeshBasicMaterial({
+      map:tex,
+      side:THREE.DoubleSide
+    })
   );
-  face.position.set(p.x+1.7,1.7,p.z+.09);
+
+  face.position.set(x,3,z+.14);
   scene.add(face);
 }
+
 addOpeningSign();
 
-// Final area: warmer, brighter and more open.
-const endingLight=new THREE.PointLight(0xffd39a,1.8,18);
-endingLight.position.set(3,5,-33);
+// --------------------------------------------------
+// LOW TRAIL LIGHTING
+// --------------------------------------------------
+
+const trailLights=[];
+
+for(let i=0;i<14;i++) {
+
+  const t=.025+i*.068;
+  const p=pointAt(t);
+  const side=sideAt(t);
+
+  const position=p.clone().addScaledVector(side,5);
+
+  const lamp=new THREE.Mesh(
+    new THREE.SphereGeometry(.4,8,8),
+    new THREE.MeshBasicMaterial({
+      color:0xffc47b
+    })
+  );
+
+  lamp.position.set(position.x,.55,position.z);
+  scene.add(lamp);
+
+  const light=new THREE.PointLight(
+    0xffbd73,.7,18
+  );
+
+  light.position.copy(lamp.position);
+  light.position.y=1;
+  scene.add(light);
+
+  trailLights.push(light);
+}
+
+// --------------------------------------------------
+// FINAL AREA
+// --------------------------------------------------
+
+const endingLight=new THREE.PointLight(
+  0xffd39a,2.5,60
+);
+
+endingLight.position.set(20,12,-335);
 scene.add(endingLight);
 
-// Player movement follows the route. The visitor can look freely,
-// but cannot walk beyond the next installation before reaching it.
-let progress=0.015;
+// --------------------------------------------------
+// PLAYER AND MOVEMENT
+// --------------------------------------------------
+
+let progress=.015;
 let unlocked=0;
 let activeInstallation=-1;
+
 let lookYaw=0;
 let lookPitch=0;
+let lateralOffset=0;
+
 let entered=false;
-let musicPaused=false;
-let currentAudio=null;
-let currentAudioIndex=-1;
-let audioFade=null;
 
 const keys={};
-const held={forward:false,back:false,left:false,right:false};
+
+const held={
+  forward:false,
+  back:false,
+  left:false,
+  right:false
+};
 
 function updateCamera() {
+
   const p=pointAt(progress);
   const tangent=tangentAt(progress);
-  const baseYaw=Math.atan2(-tangent.x,-tangent.z);
+  const side=sideAt(progress);
+
+  const baseYaw=Math.atan2(
+    -tangent.x,-tangent.z
+  );
+
   const yaw=baseYaw+lookYaw;
 
-  camera.position.set(p.x,1.7,p.z);
+  camera.position.set(
+    p.x+side.x*lateralOffset,
+    1.8,
+    p.z+side.z*lateralOffset
+  );
+
   camera.rotation.order="YXZ";
   camera.rotation.y=yaw;
   camera.rotation.x=lookPitch;
 }
 
 function updatePlayer(delta) {
+
   if(!entered) return;
 
   let forward=0;
@@ -573,212 +906,448 @@ function updatePlayer(delta) {
 
   if(keys.KeyW || keys.ArrowUp || held.forward) forward++;
   if(keys.KeyS || keys.ArrowDown || held.back) forward--;
+
   if(keys.KeyD || held.right) sideways++;
   if(keys.KeyA || held.left) sideways--;
 
-  const speed=.105;
-  progress += forward*speed*delta*60/routeLength;
+  // Comfortable walking speed in the larger environment
+
+  const speed=2.3;
 
   const nextStop=installations[unlocked];
+
   const maxProgress=nextStop
     ? Math.min(1,nextStop.t+.012)
     : 1;
 
-  progress=THREE.MathUtils.clamp(progress,0,maxProgress);
+  progress += forward*speed*delta/routeLength;
 
-  // Small side-to-side movement on the trail.
-  if(sideways!==0) {
-    const side=sideAt(progress);
-    const p=pointAt(progress);
-    const newX=p.x+side.x*sideways*.035;
-    const newZ=p.z+side.z*sideways*.035;
-    const center=pointAt(progress);
-    const offsetX=newX-center.x;
-    const offsetZ=newZ-center.z;
-    const sideDistance=Math.sqrt(offsetX*offsetX+offsetZ*offsetZ);
-    if(sideDistance<.9) {
-      camera.position.x=newX;
-      camera.position.z=newZ;
-    }
-  }
+  progress=THREE.MathUtils.clamp(
+    progress,0,maxProgress
+  );
+
+  lateralOffset += sideways*5*delta;
+
+  lateralOffset=THREE.MathUtils.clamp(
+    lateralOffset,-5,5
+  );
 }
 
+// --------------------------------------------------
+// INSTALLATION CHECKPOINTS
+// --------------------------------------------------
+
 function updateInstallations() {
+
   if(unlocked>=installations.length) return;
 
   const item=installations[unlocked];
-  if(Math.abs(progress-item.t)<.016) {
+
+  if(Math.abs(progress-item.t)<.012) {
+
     activeInstallation=unlocked;
-    startMusic(unlocked);
     unlocked++;
+
     updateStatus();
   }
 }
 
 function updateStatus() {
+
   const status=document.getElementById("status");
+
   if(activeInstallation>=0) {
     status.textContent=
       "INSTALLATION "+(activeInstallation+1)+" OF 12";
   } else {
     status.textContent="FOLLOW THE TRAIL";
   }
-  if(unlocked>=12) status.textContent="THE JOURNEY'S END";
+
+  if(unlocked>=12) {
+    status.textContent="THE JOURNEY'S END";
+  }
 }
 
+// --------------------------------------------------
+// PROXIMITY-BASED MUSIC
+// --------------------------------------------------
+
+// Music fades in as the visitor approaches a photograph.
+// It reaches full volume close to the photograph.
+// It fades away as the visitor walks away.
+
+let currentAudio=null;
+let currentAudioIndex=-1;
+let musicPaused=false;
+
+const fadingAudios=[];
+
+// Start the selected song
+
 function startMusic(index) {
+
   if(index===currentAudioIndex) return;
 
   if(currentAudio) {
-    const old=currentAudio;
-    const startVolume=old.volume;
-    const start=performance.now();
-    if(audioFade) cancelAnimationFrame(audioFade);
-
-    function fadeOut(now) {
-      const amount=Math.min(1,(now-start)/900);
-      old.volume=startVolume*(1-amount);
-      if(amount<1) audioFade=requestAnimationFrame(fadeOut);
-      else { old.pause(); old.src=""; }
-    }
-    audioFade=requestAnimationFrame(fadeOut);
+    fadingAudios.push(currentAudio);
   }
 
-  const audio=new Audio("assets/music/"+installations[index].song);
+  const audio=new Audio(
+    "assets/music/"+installations[index].song
+  );
+
   audio.loop=true;
   audio.volume=0;
+
   currentAudio=audio;
   currentAudioIndex=index;
 
-  audio.play().then(()=>{
-    const start=performance.now();
-    function fadeIn(now) {
-      if(currentAudio!==audio) return;
-      audio.volume=Math.min(1,(now-start)/1200);
-      if(audio.volume<1) requestAnimationFrame(fadeIn);
-    }
-    requestAnimationFrame(fadeIn);
-  }).catch(err=>{
-    console.warn("Audio could not start:",err);
-  });
-}
-
-function toggleMusic() {
-  if(!currentAudio) return;
-  if(musicPaused) {
-    currentAudio.play();
-    musicPaused=false;
-    document.getElementById("audioButton").textContent="Pause music";
-  } else {
-    currentAudio.pause();
-    musicPaused=true;
-    document.getElementById("audioButton").textContent="Play music";
+  if(!musicPaused) {
+    audio.play().catch(err=>{
+      console.warn("Audio could not start:",err);
+    });
   }
 }
-document.getElementById("audioButton").addEventListener("click",toggleMusic);
+
+// Find the closest photograph
+
+function updateProximityMusic(delta) {
+
+  if(musicPaused) return;
+
+  let nearest=-1;
+  let nearestDistance=Infinity;
+
+  for(let i=0;i<photoPositions.length;i++) {
+
+    const distance=camera.position.distanceTo(
+      photoPositions[i]
+    );
+
+    if(distance<nearestDistance) {
+      nearestDistance=distance;
+      nearest=i;
+    }
+  }
+
+  // Outer and inner music distances
+
+  const outerDistance=34;
+  const fullVolumeDistance=11;
+
+  if(nearest>=0 && nearestDistance<outerDistance) {
+
+    if(nearest!==currentAudioIndex) {
+      startMusic(nearest);
+    }
+
+    const fade=THREE.MathUtils.clamp(
+      (outerDistance-nearestDistance)/
+      (outerDistance-fullVolumeDistance),
+      0,1
+    );
+
+    const target=fade*fade*(3-2*fade);
+
+    if(currentAudio) {
+      currentAudio.volume=THREE.MathUtils.damp(
+        currentAudio.volume,
+        target,
+        2.2,
+        delta
+      );
+    }
+
+    if(nearestDistance<outerDistance) {
+      activeInstallation=nearest;
+    }
+
+    updateStatus();
+
+  } else {
+
+    if(currentAudio) {
+      currentAudio.volume=THREE.MathUtils.damp(
+        currentAudio.volume,0,2.2,delta
+      );
+
+      if(currentAudio.volume<.015) {
+        currentAudio.pause();
+        currentAudio.currentTime=0;
+        currentAudio=null;
+        currentAudioIndex=-1;
+      }
+    }
+  }
+
+  // Fade out previously playing tracks
+
+  for(let i=fadingAudios.length-1;i>=0;i--) {
+
+    const old=fadingAudios[i];
+
+    old.volume=THREE.MathUtils.damp(
+      old.volume,0,3,delta
+    );
+
+    if(old.volume<.015) {
+      old.pause();
+      old.src="";
+      fadingAudios.splice(i,1);
+    }
+  }
+}
+
+// --------------------------------------------------
+// MUSIC BUTTON
+// --------------------------------------------------
+
+function toggleMusic() {
+
+  musicPaused=!musicPaused;
+
+  if(musicPaused) {
+
+    if(currentAudio) currentAudio.pause();
+
+    fadingAudios.forEach(a=>a.pause());
+
+    document.getElementById("audioButton").textContent=
+      "Play music";
+
+  } else {
+
+    if(currentAudio) {
+      currentAudio.play().catch(()=>{});
+    }
+
+    document.getElementById("audioButton").textContent=
+      "Pause music";
+  }
+}
+
+document.getElementById("audioButton")
+  .addEventListener("click",toggleMusic);
+
+// --------------------------------------------------
+// LIGHTING
+// --------------------------------------------------
 
 function updateLighting(delta) {
+
   displayLights.forEach((light,i)=>{
-    const distance=Math.abs(progress-installations[i].t);
-    const target=distance<.035 ? 5.2*(1-distance/.035) : 0;
+
+    const distance=camera.position.distanceTo(
+      photoPositions[i]
+    );
+
+    const target=distance<38
+      ? 5.5*Math.max(0,1-distance/38)
+      : 0;
+
     light.intensity=THREE.MathUtils.damp(
-      light.intensity,target,3,delta
+      light.intensity,target,2.5,delta
     );
   });
+
   endingLight.intensity=THREE.MathUtils.damp(
     endingLight.intensity,
-    progress>.88 ? 3.5 : 1.8,
-    1.5,delta
+    progress>.88?4:2.5,
+    1.5,
+    delta
   );
 }
 
-// Keyboard controls
+// --------------------------------------------------
+// KEYBOARD CONTROLS
+// --------------------------------------------------
+
 addEventListener("keydown",e=>{
+
   keys[e.code]=true;
 
-  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code)) {
+  if([
+    "ArrowUp","ArrowDown",
+    "ArrowLeft","ArrowRight","Space"
+  ].includes(e.code)) {
     e.preventDefault();
   }
 
   const turn=.045;
+
   if(e.code==="ArrowLeft") lookYaw+=turn;
   if(e.code==="ArrowRight") lookYaw-=turn;
-  if(e.code==="ArrowUp") lookPitch=Math.max(-.65,lookPitch-turn);
-  if(e.code==="ArrowDown") lookPitch=Math.min(.65,lookPitch+turn);
-});
-addEventListener("keyup",e=>{ keys[e.code]=false; });
 
-// Mouse / trackpad drag to look around
-let dragging=false,lastX=0,lastY=0;
+  if(e.code==="ArrowUp") {
+    lookPitch=Math.max(-.65,lookPitch-turn);
+  }
+
+  if(e.code==="ArrowDown") {
+    lookPitch=Math.min(.65,lookPitch+turn);
+  }
+});
+
+addEventListener("keyup",e=>{
+  keys[e.code]=false;
+});
+
+// --------------------------------------------------
+// MOUSE AND TRACKPAD LOOKING
+// --------------------------------------------------
+
+let dragging=false;
+let lastX=0;
+let lastY=0;
+
 renderer.domElement.addEventListener("pointerdown",e=>{
+
   if(e.pointerType==="mouse" || e.pointerType==="pen") {
-    dragging=true;lastX=e.clientX;lastY=e.clientY;
+
+    dragging=true;
+    lastX=e.clientX;
+    lastY=e.clientY;
+
     renderer.domElement.setPointerCapture(e.pointerId);
   }
 });
-renderer.domElement.addEventListener("pointermove",e=>{
-  if(!dragging) return;
-  const dx=e.clientX-lastX,dy=e.clientY-lastY;
-  lookYaw-=dx*.004;
-  lookPitch=THREE.MathUtils.clamp(lookPitch+dy*.004,-.65,.65);
-  lastX=e.clientX;lastY=e.clientY;
-});
-renderer.domElement.addEventListener("pointerup",()=>dragging=false);
-renderer.domElement.addEventListener("pointercancel",()=>dragging=false);
 
-// Touch drag to look around on iPad
+renderer.domElement.addEventListener("pointermove",e=>{
+
+  if(!dragging) return;
+
+  const dx=e.clientX-lastX;
+  const dy=e.clientY-lastY;
+
+  lookYaw-=dx*.004;
+
+  lookPitch=THREE.MathUtils.clamp(
+    lookPitch+dy*.004,-.65,.65
+  );
+
+  lastX=e.clientX;
+  lastY=e.clientY;
+});
+
+renderer.domElement.addEventListener("pointerup",()=>{
+  dragging=false;
+});
+
+renderer.domElement.addEventListener("pointercancel",()=>{
+  dragging=false;
+});
+
+// --------------------------------------------------
+// IPAD TOUCH LOOKING
+// --------------------------------------------------
+
 let touchLook=null;
+
 renderer.domElement.addEventListener("touchstart",e=>{
+
   if(e.touches.length===1) {
-    touchLook={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    touchLook={
+      x:e.touches[0].clientX,
+      y:e.touches[0].clientY
+    };
   }
+
 },{passive:true});
+
 renderer.domElement.addEventListener("touchmove",e=>{
+
   if(!touchLook || e.touches.length!==1) return;
+
   const t=e.touches[0];
+
   const dx=t.clientX-touchLook.x;
   const dy=t.clientY-touchLook.y;
+
   lookYaw-=dx*.005;
-  lookPitch=THREE.MathUtils.clamp(lookPitch+dy*.005,-.65,.65);
-  touchLook={x:t.clientX,y:t.clientY};
+
+  lookPitch=THREE.MathUtils.clamp(
+    lookPitch+dy*.005,-.65,.65
+  );
+
+  touchLook={
+    x:t.clientX,
+    y:t.clientY
+  };
+
 },{passive:true});
-renderer.domElement.addEventListener("touchend",()=>touchLook=null);
 
-// On-screen movement buttons
+renderer.domElement.addEventListener("touchend",()=>{
+  touchLook=null;
+});
+
+// --------------------------------------------------
+// ON-SCREEN MOVEMENT BUTTONS
+// --------------------------------------------------
+
 document.querySelectorAll("[data-move]").forEach(button=>{
+
   const direction=button.dataset.move;
+
   button.addEventListener("pointerdown",e=>{
-    e.preventDefault();held[direction]=true;
+    e.preventDefault();
+    held[direction]=true;
   });
+
   ["pointerup","pointerleave","pointercancel"].forEach(event=>{
-    button.addEventListener(event,()=>held[direction]=false);
+    button.addEventListener(event,()=>{
+      held[direction]=false;
+    });
   });
 });
 
-document.getElementById("enterButton").addEventListener("click",()=>{
-  entered=true;
-  document.getElementById("enter").style.display="none";
-  updateCamera();
-});
+// --------------------------------------------------
+// ENTER THE GALLERY
+// --------------------------------------------------
+
+document.getElementById("enterButton")
+  .addEventListener("click",()=>{
+
+    entered=true;
+
+    document.getElementById("enter").style.display="none";
+
+    updateCamera();
+  });
+
+// --------------------------------------------------
+// MAIN ANIMATION
+// --------------------------------------------------
 
 function animate() {
+
   requestAnimationFrame(animate);
+
   const delta=Math.min(clock.getDelta(),.05);
 
   updatePlayer(delta);
   updateInstallations();
-  updateLighting(delta);
   updateCamera();
+
+  updateProximityMusic(delta);
+  updateLighting(delta);
 
   renderer.render(scene,camera);
 }
+
 animate();
 
+// --------------------------------------------------
+// RESIZE
+// --------------------------------------------------
+
 addEventListener("resize",()=>{
+
   camera.aspect=innerWidth/innerHeight;
+
   camera.updateProjectionMatrix();
+
   renderer.setSize(innerWidth,innerHeight);
 });
+
 })();
 </script>
 </body>
