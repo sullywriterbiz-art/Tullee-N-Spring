@@ -1,5 +1,4 @@
 
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -12,15 +11,52 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#171512;fon
 canvas{display:block;touch-action:none}
 #heading{position:fixed;z-index:4;top:14px;left:16px;color:#f1e8d8;font:12px/1.4 Arial,sans-serif;letter-spacing:.14em;text-shadow:0 1px 5px #000;pointer-events:none}
 #hint{position:fixed;z-index:4;left:50%;bottom:15px;transform:translateX(-50%);max-width:90vw;padding:8px 12px;border-radius:18px;background:rgba(25,22,18,.72);color:#eee3d0;font:12px Arial,sans-serif;text-align:center;pointer-events:none}
-#enter,#poemModal{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(12,11,9,.78)}
+#enter{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(12,11,9,.78)}
 #enterCard{max-width:440px;padding:28px 26px;text-align:center;color:#f3eadb;background:rgba(34,29,23,.96);border:1px solid #a78c62;border-radius:8px}
 #enterCard h1{margin:0 0 12px;font-weight:normal;font-size:clamp(25px,5vw,36px)}
 #enterCard p{line-height:1.55;color:#ddd1bd}
 button{font:14px Arial,sans-serif;color:#f7eddd;background:#55452f;border:1px solid #b69b70;border-radius:22px;padding:11px 17px;cursor:pointer;touch-action:manipulation}
 #enterButton{margin-top:8px;padding:12px 24px}
-#poemModal{display:none;background:rgba(8,7,6,.94);z-index:20;flex-direction:column;gap:12px}
-#poemImage{display:block;max-width:94vw;max-height:82vh;object-fit:contain;background:#eee8da;box-shadow:0 8px 35px #000}
-#closePoem{align-self:flex-end;margin-right:2vw}
+
+/* Scrollable poem reader */
+#poemModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:20;
+  padding:58px 12px 18px;
+  background:rgba(8,7,6,.96);
+  align-items:center;
+  justify-content:center;
+}
+#poemPanel{
+  width:min(94vw,900px);
+  max-height:calc(100vh - 82px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:14px;
+  background:#e9e2d3;
+  border-radius:5px;
+  box-shadow:0 8px 35px #000;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+}
+#poemImage{
+  display:block;
+  width:auto;
+  height:auto;
+  max-width:100%;
+  margin:0 auto;
+  object-fit:contain;
+}
+#closePoem{
+  position:absolute;
+  top:12px;
+  right:16px;
+  z-index:22;
+  background:#55452f;
+}
 #touchControls{position:fixed;z-index:5;left:14px;bottom:58px;display:none;gap:8px;align-items:center}
 #touchControls button{width:48px;height:48px;padding:0;border-radius:50%;font-size:20px;background:rgba(42,35,27,.82);user-select:none;-webkit-user-select:none}
 #touchControls .stack{display:flex;flex-direction:column;gap:7px}
@@ -35,7 +71,7 @@ button{font:14px Arial,sans-serif;color:#f7eddd;background:#55452f;border:1px so
 <div id="heading">TULLEE &amp; SPRING · INSTALLATION 1</div>
 <div id="hint">Drag to look · Use the arrows to move · Tap the poem to enlarge</div>
 
-<div id="touchControls" aria-label="Room movement controls">
+<div id="touchControls" aria-label="Movement controls">
   <div class="stack">
     <button data-move="forward" aria-label="Forward">↑</button>
     <button data-move="back" aria-label="Back">↓</button>
@@ -57,7 +93,9 @@ button{font:14px Arial,sans-serif;color:#f7eddd;background:#55452f;border:1px so
 
 <div id="poemModal">
   <button id="closePoem">Close poem</button>
-  <img id="poemImage" src="assets/poems/HorseHills.png" alt="HorseHills poem">
+  <div id="poemPanel">
+    <img id="poemImage" src="assets/poems/HorseHills.png" alt="HorseHills poem">
+  </div>
 </div>
 
 <audio id="roomSong" src="assets/music/horse%20hills.mp3" preload="auto" loop></audio>
@@ -78,10 +116,10 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=.84;
+renderer.toneMappingExposure=.72;
 document.body.appendChild(renderer.domElement);
 
-// The room
+// Room structure
 const room=new THREE.Group();
 scene.add(room);
 
@@ -96,7 +134,7 @@ function panel(w,h,d,mat,x,y,z){
   return m;
 }
 
-// Create a subtle hardwood texture with soft grain and a gentle sheen.
+// Hardwood texture: warm color, fine grain, restrained board joints.
 function makeWoodTexture(){
   const canvas=document.createElement('canvas');
   canvas.width=1024;
@@ -106,18 +144,17 @@ function makeWoodTexture(){
   ctx.fillStyle='#806344';
   ctx.fillRect(0,0,1024,1024);
 
-  // Gentle variation between wide boards.
   const boardHeight=128;
+
   for(let y=0;y<1024;y+=boardHeight){
-    const shade= y%256===0 ? '#896d4e' : '#806243';
-    ctx.fillStyle=shade;
+    ctx.fillStyle=(y%256===0)?'#896d4e':'#806243';
     ctx.fillRect(0,y,1024,boardHeight);
 
-    // Very fine, low-contrast wood grain.
     for(let i=0;i<34;i++){
       const gy=y+Math.random()*boardHeight;
       const start=Math.random()*250;
       const length=250+Math.random()*700;
+
       ctx.beginPath();
       ctx.moveTo(start,gy);
       ctx.bezierCurveTo(
@@ -125,21 +162,20 @@ function makeWoodTexture(){
         start+length*.7,gy-2+Math.random()*4,
         Math.min(1024,start+length),gy
       );
+
       ctx.strokeStyle=Math.random()>.5
-        ? 'rgba(42,27,15,0.055)'
-        : 'rgba(238,207,163,0.055)';
+        ?'rgba(42,27,15,0.055)'
+        :'rgba(238,207,163,0.055)';
       ctx.lineWidth=.5+Math.random()*1.2;
       ctx.stroke();
     }
 
-    // Nearly invisible board edges.
     ctx.fillStyle='rgba(38,25,15,0.12)';
     ctx.fillRect(0,y+boardHeight-1,1024,1);
   }
 
-  // Subtle staggered end joints.
   for(let y=0;y<1024;y+=boardHeight){
-    const x=((Math.floor(y/boardHeight)%2)===0)?340:700;
+    const x=(Math.floor(y/boardHeight)%2===0)?340:700;
     ctx.fillStyle='rgba(38,25,15,0.13)';
     ctx.fillRect(x,y,1,boardHeight);
   }
@@ -160,23 +196,23 @@ const floorMat=new THREE.MeshStandardMaterial({
 
 panel(18,.22,16,floorMat,0,-.12,0);
 panel(18,.22,16,ceilingMat,0,6.2,0);
-panel(18,6.2,.22,wallMat,0,3.0,-8);
-panel(18,6.2,.22,sideMat,0,3.0,8);
+panel(18,6.2,.22,wallMat,0,3,-8);
+panel(18,6.2,.22,sideMat,0,3,8);
 panel(.22,6.2,16,sideMat,-9,3,0);
 panel(.22,6.2,16,sideMat,9,3,0);
 
-// Soft, warm lighting at a lower overall level.
-scene.add(new THREE.HemisphereLight(0xfff4df,0x51483d,.78));
+// Softer, warmer lighting.
+scene.add(new THREE.HemisphereLight(0xfff0d8,0x51483d,.52));
 
-const mainLight=new THREE.DirectionalLight(0xffedcf,.82);
+const mainLight=new THREE.DirectionalLight(0xffedcf,.52);
 mainLight.position.set(-3,7,5);
 scene.add(mainLight);
 
-const fillLight=new THREE.PointLight(0xffe5c2,15,20,2);
+const fillLight=new THREE.PointLight(0xffdfb5,9,20,2);
 fillLight.position.set(0,4.8,-3.8);
 scene.add(fillLight);
 
-// Frames for the photograph and poem.
+// Artwork frames
 const frameMat=new THREE.MeshStandardMaterial({
   color:0x493723,
   roughness:.5,
@@ -199,18 +235,18 @@ function framedImage(src,x,y,w,h,isPoem=false){
   );
   group.add(backing);
 
+  const mat=new THREE.MeshBasicMaterial({color:0xffffff});
+  const image=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
+  image.position.z=.098;
+  image.renderOrder=2;
+  group.add(image);
+
   const trim=new THREE.Mesh(
     new THREE.BoxGeometry(w+.08,h+.08,.035),
     innerMat
   );
   trim.position.z=.075;
   group.add(trim);
-
-  const mat=new THREE.MeshBasicMaterial({color:0xffffff});
-  const image=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
-  image.position.z=.098;
-  image.renderOrder=2;
-  group.add(image);
 
   const loader=new THREE.TextureLoader();
   loader.load(
@@ -230,26 +266,13 @@ function framedImage(src,x,y,w,h,isPoem=false){
   return {group,image};
 }
 
-// Photograph and poem.
-const photo=framedImage('HorseHills.jpg',-3.0,3.15,4.7,3.0,false);
+const photo=framedImage('HorseHills.jpg',-3,3.15,4.7,3,false);
 const poem=framedImage('assets/poems/HorseHills.png',3.05,3.15,3.25,4.15,true);
 
-// Gentle, bounded movement.
-const held={
-  forward:false,
-  back:false,
-  left:false,
-  right:false
-};
-
+// Movement
+const held={forward:false,back:false,left:false,right:false};
 const keys={};
-let yaw=0;
-let pitch=0;
-let dragging=false;
-let lastX=0;
-let lastY=0;
-let entered=false;
-
+let yaw=0,pitch=0,dragging=false,lastX=0,lastY=0,entered=false;
 const clock=new THREE.Clock();
 
 function update(dt){
@@ -271,7 +294,6 @@ function update(dt){
 
   camera.position.x=THREE.MathUtils.clamp(camera.position.x,-7.4,7.4);
   camera.position.z=THREE.MathUtils.clamp(camera.position.z,-6.7,6.7);
-
   camera.rotation.set(pitch,yaw,0,'YXZ');
 }
 
@@ -279,10 +301,9 @@ addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(e.code.startsWith('Arrow'))e.preventDefault();
 });
-
 addEventListener('keyup',e=>keys[e.code]=false);
 
-// Mouse look.
+// Mouse look
 renderer.domElement.addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse'||e.pointerType==='pen'){
     dragging=true;
@@ -294,13 +315,10 @@ renderer.domElement.addEventListener('pointerdown',e=>{
 
 renderer.domElement.addEventListener('pointermove',e=>{
   if(!dragging)return;
-
   const dx=e.clientX-lastX;
   const dy=e.clientY-lastY;
-
   yaw-=dx*.0015;
   pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);
-
   lastX=e.clientX;
   lastY=e.clientY;
 });
@@ -308,15 +326,12 @@ renderer.domElement.addEventListener('pointermove',e=>{
 renderer.domElement.addEventListener('pointerup',()=>dragging=false);
 renderer.domElement.addEventListener('pointercancel',()=>dragging=false);
 
-// Touch look.
+// Touch look
 let touchLook=null;
 
 renderer.domElement.addEventListener('touchstart',e=>{
   if(e.touches.length===1){
-    touchLook={
-      x:e.touches[0].clientX,
-      y:e.touches[0].clientY
-    };
+    touchLook={x:e.touches[0].clientX,y:e.touches[0].clientY};
   }
 },{passive:true});
 
@@ -329,13 +344,12 @@ renderer.domElement.addEventListener('touchmove',e=>{
 
   yaw-=dx*.0018;
   pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);
-
   touchLook={x:t.clientX,y:t.clientY};
 },{passive:true});
 
 renderer.domElement.addEventListener('touchend',()=>touchLook=null);
 
-// On-screen movement buttons.
+// Touch movement buttons
 document.querySelectorAll('[data-move]').forEach(b=>{
   const d=b.dataset.move;
 
@@ -349,9 +363,11 @@ document.querySelectorAll('[data-move]').forEach(b=>{
   });
 });
 
-// Tap or click the poem to enlarge it.
+// Poem opening
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
+const poemModal=document.getElementById('poemModal');
+const poemPanel=document.getElementById('poemPanel');
 
 renderer.domElement.addEventListener('click',e=>{
   if(dragging||!entered)return;
@@ -362,21 +378,22 @@ renderer.domElement.addEventListener('click',e=>{
   raycaster.setFromCamera(pointer,camera);
 
   if(raycaster.intersectObject(poem.image).length){
-    document.getElementById('poemModal').style.display='flex';
+    poemModal.style.display='flex';
+    poemPanel.scrollTop=0;
   }
 });
 
-document.getElementById('closePoem').addEventListener('click',()=>{
-  document.getElementById('poemModal').style.display='none';
+function closePoem(){
+  poemModal.style.display='none';
+}
+
+document.getElementById('closePoem').addEventListener('click',closePoem);
+
+poemModal.addEventListener('click',e=>{
+  if(e.target===poemModal)closePoem();
 });
 
-document.getElementById('poemModal').addEventListener('click',e=>{
-  if(e.target.id==='poemModal'){
-    e.currentTarget.style.display='none';
-  }
-});
-
-// Start the song when the visitor enters.
+// Music starts when visitor enters.
 const song=document.getElementById('roomSong');
 song.loop=true;
 
@@ -390,6 +407,7 @@ document.getElementById('enterButton').addEventListener('click',()=>{
   });
 });
 
+// Render loop
 function animate(){
   requestAnimationFrame(animate);
   const dt=Math.min(clock.getDelta(),.05);
@@ -408,6 +426,7 @@ addEventListener('resize',()=>{
 </script>
 </body>
 </html>
+
 
  
  
