@@ -4,588 +4,281 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Tullee & Spring — HorseHills</title>
-
+<title>Tullee &amp; Spring — HorseHills</title>
 <style>
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #171512;
-  font-family: Georgia, serif;
-}
-
-#room {
-  position: fixed;
-  inset: 0;
-}
-
-#instructions {
-  position: fixed;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #f5eee2;
-  background: rgba(20,18,15,.72);
-  padding: 9px 15px;
-  border-radius: 5px;
-  font-size: 13px;
-  text-align: center;
-  z-index: 5;
-  pointer-events: none;
-  max-width: 90%;
-}
-
-#enter {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(12,11,9,.82);
-  color: #f7eee0;
-  text-align: center;
-  padding: 24px;
-}
-
-#enter button, #poem button, #music button {
-  font-family: Georgia, serif;
-  cursor: pointer;
-  border: 1px solid #c5ad85;
-  background: #44382b;
-  color: #fff4e2;
-  padding: 11px 18px;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-#enter h1 {
-  font-weight: normal;
-  letter-spacing: 2px;
-  font-size: 30px;
-}
-
-#enter p {
-  line-height: 1.6;
-  max-width: 340px;
-  margin: 18px auto 24px;
-}
-
-#music {
-  position: fixed;
-  bottom: 14px;
-  right: 14px;
-  z-index: 8;
-}
-
-#music button {
-  font-size: 13px;
-  padding: 9px 13px;
-  background: rgba(35,29,23,.85);
-}
-
-#poem {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,.92);
-  padding: 20px;
-}
-
-#poemContent {
-  max-width: 95vw;
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-#poemImage {
-  max-width: 92vw;
-  max-height: 78vh;
-  object-fit: contain;
-  transform-origin: center;
-}
-
-#poemControls {
-  display: flex;
-  gap: 10px;
-}
-
-#poemControls button {
-  font-size: 14px;
-  padding: 8px 13px;
-}
-
-#mobileControls {
-  position: fixed;
-  bottom: 16px;
-  left: 14px;
-  z-index: 10;
-  display: none;
-  grid-template-columns: 48px 48px 48px;
-  grid-template-rows: 42px 42px;
-  gap: 4px;
-  touch-action: none;
-}
-
-#mobileControls button {
-  border: 1px solid rgba(255,255,255,.45);
-  border-radius: 7px;
-  background: rgba(35,29,23,.65);
-  color: white;
-  font-size: 20px;
-  touch-action: none;
-}
-
-#mobileControls .up { grid-column: 2; }
-#mobileControls .left { grid-column: 1; grid-row: 2; }
-#mobileControls .down { grid-column: 2; grid-row: 2; }
-#mobileControls .right { grid-column: 3; grid-row: 2; }
-
-@media (pointer: coarse) {
-  #mobileControls { display: grid; }
-  #instructions { top: 8px; font-size: 11px; }
-}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#17130f;font-family:Georgia,serif}
+canvas{display:block;touch-action:none}
+#heading{position:fixed;z-index:4;top:14px;left:16px;color:#f1e8d8;font:12px Arial,sans-serif;letter-spacing:.14em;text-shadow:0 1px 5px #000;pointer-events:none}
+#hint{position:fixed;z-index:4;left:50%;bottom:14px;transform:translateX(-50%);max-width:90vw;padding:8px 12px;border-radius:18px;background:rgba(25,22,18,.76);color:#eee3d0;font:12px Arial,sans-serif;text-align:center;pointer-events:none}
+button{font:14px Arial,sans-serif;color:#f7eddd;background:#55452f;border:1px solid #b69b70;border-radius:22px;padding:10px 15px;cursor:pointer;touch-action:manipulation}
+#enter,#poemModal{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(12,11,9,.82)}
+#enterCard{max-width:440px;padding:28px 26px;text-align:center;color:#f3eadb;background:rgba(34,29,23,.97);border:1px solid #a78c62;border-radius:8px}
+#enterCard h1{margin:0 0 12px;font-weight:normal;font-size:clamp(25px,5vw,36px)}
+#enterCard p{line-height:1.55;color:#ddd1bd}
+#enterButton{margin-top:8px;padding:12px 24px}
+#musicButton{position:fixed;z-index:7;right:14px;bottom:14px;background:rgba(42,34,25,.9);font-size:12px}
+#readPoem{position:fixed;z-index:7;right:14px;top:14px;background:rgba(42,34,25,.9);font-size:12px}
+#musicStatus{position:fixed;z-index:7;right:14px;bottom:58px;color:#f1e8d8;font:11px Arial,sans-serif;text-shadow:0 1px 5px #000;pointer-events:none}
+#poemModal{display:none;background:rgba(8,7,6,.95);z-index:20;flex-direction:column;gap:12px}
+#poemImage{display:block;max-width:94vw;max-height:82vh;object-fit:contain;background:#eee8da;box-shadow:0 8px 35px #000}
+#closePoem{align-self:flex-end;margin-right:2vw}
+#touchControls{position:fixed;z-index:6;left:14px;bottom:56px;display:none;gap:8px;align-items:center;user-select:none;-webkit-user-select:none}
+#touchControls button{width:48px;height:48px;padding:0;border-radius:50%;font-size:20px;background:rgba(42,35,27,.82)}
+#touchControls .stack{display:flex;flex-direction:column;gap:7px}
+@media(pointer:coarse){#touchControls{display:flex}#hint{bottom:12px;left:auto;right:12px;transform:none;max-width:48vw}#musicButton{bottom:14px;right:12px}#musicStatus{right:12px;bottom:58px}}
 </style>
 </head>
-
 <body>
-
-<div id="room"></div>
-
-<div id="instructions">
-  Drag to look around · Use arrows or WASD to move · Tap the poem to read
+<div id="heading">TULLEE &amp; SPRING · INSTALLATION 1</div>
+<div id="hint">Drag to look · Use arrows or WASD to move · Tap Read poem</div>
+<div id="touchControls" aria-label="Room movement controls">
+  <div class="stack"><button data-move="forward" aria-label="Forward">↑</button><button data-move="back" aria-label="Back">↓</button></div>
+  <div class="stack"><button data-move="left" aria-label="Left">←</button><button data-move="right" aria-label="Right">→</button></div>
 </div>
-
-<div id="enter">
-  <div>
-    <h1>Tullee &amp; Spring</h1>
-    <p>HorseHills</p>
-    <p>Enter the room, take your time, and enjoy the photograph, poem, and music.</p>
-    <button id="enterButton">Enter Room</button>
-  </div>
-</div>
-
-<div id="music">
-  <button id="musicButton">Pause Music</button>
-</div>
-
-<div id="mobileControls">
-  <button class="up" data-move="forward">▲</button>
-  <button class="left" data-move="left">◀</button>
-  <button class="down" data-move="back">▼</button>
-  <button class="right" data-move="right">▶</button>
-</div>
-
-<div id="poem">
-  <div id="poemContent">
-    <img id="poemImage" src="HorseHills.png" alt="HorseHills poem">
-    <div id="poemControls">
-      <button id="zoomOut">−</button>
-      <button id="zoomIn">+</button>
-      <button id="closePoem">Close</button>
-    </div>
-  </div>
-</div>
-
-<audio id="song" src="horsehills.mp3" loop preload="auto"></audio>
-
+<button id="readPoem">Read poem</button>
+<div id="musicStatus">Music ready</div>
+<button id="musicButton">Play music</button>
+<div id="enter"><div id="enterCard"><h1>Tullee &amp; Spring</h1><p>HorseHills</p><p>Enter the room, take a look around, and spend a little time with the photograph and poem.</p><button id="enterButton">Enter the room</button></div></div>
+<div id="poemModal"><button id="closePoem">Close poem</button><img id="poemImage" src="HorseHills.png" alt="HorseHills poem"></div>
+<audio id="roomSong" src="horsehills.mp3" preload="auto" loop playsinline></audio>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-
 <script>
-(() => {
-  const container = document.getElementById("room");
-
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x26221d);
-
-  const camera = new THREE.PerspectiveCamera(
-    65,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    100
-  );
-
-  camera.position.set(0, 1.65, 6);
-  camera.rotation.order = "YXZ";
-
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    powerPreference: "high-performance"
-  });
-
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
-  container.appendChild(renderer.domElement);
-
-  // Lighting
-  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-
-  const roomLight = new THREE.PointLight(0xffe4bd, 65, 35);
-  roomLight.position.set(0, 5.5, 1);
-  scene.add(roomLight);
-
-  // Room dimensions
-  const roomWidth = 18;
-  const roomDepth = 18;
-  const roomHeight = 7;
-
-  const wallMaterial = new THREE.MeshStandardMaterial({
-    color: 0xb9aa95,
-    roughness: 0.9
-  });
-
-  // Floor
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(roomWidth, roomDepth),
-    new THREE.MeshStandardMaterial({
-      color: 0x805b3d,
-      roughness: 0.72
-    })
-  );
-
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = 0;
-  scene.add(floor);
-
-  // Simple hardwood floorboards
-  const boardMaterial = new THREE.MeshStandardMaterial({
-    color: 0x68472f,
-    roughness: 0.85
-  });
-
-  for (let z = -8.5; z <= 8.5; z += 0.55) {
-    const line = new THREE.Mesh(
-      new THREE.BoxGeometry(roomWidth, 0.012, 0.018),
-      boardMaterial
-    );
-    line.position.set(0, 0.012, z);
-    scene.add(line);
-  }
-
-  // Side walls
-  const leftWall = new THREE.Mesh(
-    new THREE.BoxGeometry(0.2, roomHeight, roomDepth),
-    wallMaterial
-  );
-  leftWall.position.set(-roomWidth / 2, roomHeight / 2, 0);
-  scene.add(leftWall);
-
-  const rightWall = leftWall.clone();
-  rightWall.position.x = roomWidth / 2;
-  scene.add(rightWall);
-
-  // Back wall
-  const backWall = new THREE.Mesh(
-    new THREE.BoxGeometry(roomWidth, roomHeight, 0.2),
-    wallMaterial
-  );
-  backWall.position.set(0, roomHeight / 2, -roomDepth / 2);
-  scene.add(backWall);
-
-  // Front wall
-  const frontWall = backWall.clone();
-  frontWall.position.z = roomDepth / 2;
-  scene.add(frontWall);
-
-  // Ceiling
-  const ceiling = new THREE.Mesh(
-    new THREE.PlaneGeometry(roomWidth, roomDepth),
-    new THREE.MeshStandardMaterial({
-      color: 0x8c8071,
-      roughness: 1
-    })
-  );
-  ceiling.rotation.x = Math.PI / 2;
-  ceiling.position.y = roomHeight;
-  scene.add(ceiling);
-
-  // Load artwork
-  const loader = new THREE.TextureLoader();
-
-  function loadTexture(filename, callback) {
-    loader.load(
-      filename,
-      texture => {
-        texture.colorSpace = THREE.SRGBColorSpace;
-        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-        callback(texture);
-      },
-      undefined,
-      () => console.warn("Could not load image:", filename)
-    );
-  }
-
-  // Framed photograph on the back wall
-  function addFrame(x, y, width, height, texture, isPoem) {
-    const frame = new THREE.Group();
-    frame.position.set(x, y, -8.82);
-    scene.add(frame);
-
-    const outer = new THREE.Mesh(
-      new THREE.BoxGeometry(width + 0.24, height + 0.24, 0.16),
-      new THREE.MeshStandardMaterial({
-        color: 0x39291d,
-        roughness: 0.55
-      })
-    );
-    frame.add(outer);
-
-    const inner = new THREE.Mesh(
-      new THREE.BoxGeometry(width + 0.08, height + 0.08, 0.08),
-      new THREE.MeshStandardMaterial({
-        color: 0xc5ad85,
-        roughness: 0.65
-      })
-    );
-    inner.position.z = 0.095;
-    frame.add(inner);
-
-    const picture = new THREE.Mesh(
-      new THREE.PlaneGeometry(width, height),
-      new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.DoubleSide
-      })
-    );
-    picture.position.z = 0.15;
-    frame.add(picture);
-
-    if (isPoem) {
-      picture.userData.isPoem = true;
-      poemObjects.push(picture);
-    }
-
-    return frame;
-  }
-
-  const poemObjects = [];
-
-  loadTexture("HorseHills.jpg", texture => {
-    addFrame(-2.25, 3.0, 5.0, 3.25, texture, false);
-  });
-
-  loadTexture("HorseHills.png", texture => {
-    addFrame(3.15, 2.8, 2.4, 3.4, texture, true);
-  });
-
-  // Camera movement and looking
-  let yaw = 0;
-  let pitch = 0;
-  const keys = {};
-  const moveSpeed = 0.055;
-  const lookSpeed = 0.004;
-
-  let dragging = false;
-  let lastX = 0;
-  let lastY = 0;
-
-  renderer.domElement.addEventListener("pointerdown", event => {
-    dragging = true;
-    lastX = event.clientX;
-    lastY = event.clientY;
-    renderer.domElement.setPointerCapture(event.pointerId);
-  });
-
-  renderer.domElement.addEventListener("pointermove", event => {
-    if (!dragging) return;
-
-    const dx = event.clientX - lastX;
-    const dy = event.clientY - lastY;
-
-    yaw -= dx * lookSpeed;
-    pitch -= dy * lookSpeed;
-
-    pitch = Math.max(-0.65, Math.min(0.65, pitch));
-
-    lastX = event.clientX;
-    lastY = event.clientY;
-  });
-
-  function stopDragging() {
-    dragging = false;
-  }
-
-  renderer.domElement.addEventListener("pointerup", stopDragging);
-  renderer.domElement.addEventListener("pointercancel", stopDragging);
-
-  window.addEventListener("keydown", event => {
-    keys[event.key.toLowerCase()] = true;
-
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) {
-      event.preventDefault();
-    }
-  });
-
-  window.addEventListener("keyup", event => {
-    keys[event.key.toLowerCase()] = false;
-  });
-
-  // Mobile movement buttons
-  const heldMoves = {};
-
-  document.querySelectorAll("[data-move]").forEach(button => {
-    const direction = button.dataset.move;
-
-    button.addEventListener("pointerdown", event => {
-      event.preventDefault();
-      heldMoves[direction] = true;
-      button.setPointerCapture(event.pointerId);
-    });
-
-    ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
-      button.addEventListener(type, () => {
-        heldMoves[direction] = false;
-      });
-    });
-  });
-
-  function updateMovement() {
-    let forward = 0;
-    let sideways = 0;
-
-    if (keys["w"] || keys["arrowup"] || heldMoves.forward) forward += 1;
-    if (keys["s"] || keys["arrowdown"] || heldMoves.back) forward -= 1;
-    if (keys["a"] || heldMoves.left) sideways -= 1;
-    if (keys["d"] || heldMoves.right) sideways += 1;
-
-    const length = Math.hypot(forward, sideways);
-    if (length === 0) return;
-
-    forward /= length;
-    sideways /= length;
-
-    camera.position.x +=
-      (Math.sin(yaw) * forward + Math.cos(yaw) * sideways) * moveSpeed;
-
-    camera.position.z +=
-      (-Math.cos(yaw) * forward + Math.sin(yaw) * sideways) * moveSpeed;
-
-    // Keep the visitor inside the room
-    camera.position.x = THREE.MathUtils.clamp(
-      camera.position.x, -8.0, 8.0
-    );
-
-    camera.position.z = THREE.MathUtils.clamp(
-      camera.position.z, -8.0, 8.0
-    );
-  }
-
-  // Tap the poem to enlarge it
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-
-  renderer.domElement.addEventListener("click", event => {
-    if (dragging || poemObjects.length === 0) return;
-
-    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(pointer, camera);
-    const hits = raycaster.intersectObjects(poemObjects);
-
-    if (hits.length > 0) {
-      openPoem();
-    }
-  });
-
-  // Poem enlargement
-  const poemOverlay = document.getElementById("poem");
-  const poemImage = document.getElementById("poemImage");
-  let zoom = 1;
-
-  function openPoem() {
-    zoom = 1;
-    poemImage.style.transform = "scale(1)";
-    poemOverlay.style.display = "flex";
-  }
-
-  document.getElementById("closePoem").addEventListener("click", () => {
-    poemOverlay.style.display = "none";
-  });
-
-  document.getElementById("zoomIn").addEventListener("click", () => {
-    zoom = Math.min(zoom + 0.2, 2.5);
-    poemImage.style.transform = `scale(${zoom})`;
-  });
-
-  document.getElementById("zoomOut").addEventListener("click", () => {
-    zoom = Math.max(zoom - 0.2, 0.6);
-    poemImage.style.transform = `scale(${zoom})`;
-  });
-
-  poemOverlay.addEventListener("click", event => {
-    if (event.target === poemOverlay) {
-      poemOverlay.style.display = "none";
-    }
-  });
-
-  // Music
-  const song = document.getElementById("song");
-  const musicButton = document.getElementById("musicButton");
-
-  document.getElementById("enterButton").addEventListener("click", async () => {
-    document.getElementById("enter").style.display = "none";
-
-    try {
-      await song.play();
-      musicButton.textContent = "Pause Music";
-    } catch (error) {
-      musicButton.textContent = "Play Music";
-    }
-  });
-
-  musicButton.addEventListener("click", async () => {
-    if (song.paused) {
-      try {
-        await song.play();
-        musicButton.textContent = "Pause Music";
-      } catch (error) {
-        musicButton.textContent = "Play Music";
+(()=>{'use strict';
+const hint=document.getElementById('hint');
+if(!window.THREE){hint.textContent='The 3D library did not load. Please reload while connected to the internet.';return;}
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x29231c);
+const camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);
+camera.position.set(0,1.65,6.4);camera.rotation.order='YXZ';
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=.88;
+document.body.appendChild(renderer.domElement);
+
+// Room: same dimensions and simple layout, with a richer, traditional hardwood floor.
+const room=new THREE.Group();scene.add(room);
+const wallMat=new THREE.MeshStandardMaterial({color:0xbeb4a5,roughness:1});
+const sideMat=new THREE.MeshStandardMaterial({color:0xb3a796,roughness:1});
+const ceilingMat=new THREE.MeshStandardMaterial({color:0xc8bfae,roughness:1});
+function panel(w,h,d,mat,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);room.add(m);return m;}
+panel(18,.22,16,ceilingMat,0,6.2,0);
+panel(18,6.2,.22,wallMat,0,3,-8);
+panel(18,6.2,.22,sideMat,0,3,8);
+panel(.22,6.2,16,sideMat,-9,3,0);
+panel(.22,6.2,16,sideMat,9,3,0);
+
+// Make a warm oak floor texture in the browser: varied boards, grain, knots and fine seams.
+function makeHardwoodTexture(){
+  const c=document.createElement('canvas');c.width=1536;c.height=1024;
+  const g=c.getContext('2d');
+  const plankH=128;
+  const colors=['#70472d','#815638','#795033','#8b603f','#6e452c','#845737','#754a30','#906442'];
+  for(let row=0;row<8;row++){
+    const y=row*plankH;
+    g.fillStyle='#302116';g.fillRect(0,y,1536,plankH);
+    let x=0;const offset=(row%2)*150;
+    while(x<1536){
+      const w=260+((row*73+Math.floor(x/13)*29)%180);
+      g.fillStyle=colors[(row+Math.floor(x/100))%colors.length];
+      g.fillRect(x+2,y+2,w-4,plankH-4);
+      const grad=g.createLinearGradient(0,y,0,y+plankH);
+      grad.addColorStop(0,'rgba(255,218,164,.12)');
+      grad.addColorStop(.45,'rgba(30,13,5,.02)');
+      grad.addColorStop(1,'rgba(18,8,3,.25)');
+      g.fillStyle=grad;g.fillRect(x+2,y+2,w-4,plankH-4);
+      for(let k=0;k<13;k++){
+        const yy=y+12+k*8+(row%3)*2;
+        g.beginPath();g.moveTo(x+8,yy);
+        g.bezierCurveTo(x+w*.28,yy-5+(k%3)*3,x+w*.66,yy+4-(k%4)*2,x+w-8,yy-2);
+        g.strokeStyle=k%3===0?'rgba(38,17,7,.25)':'rgba(235,190,130,.10)';
+        g.lineWidth=k%4===0?2:1;g.stroke();
       }
-    } else {
-      song.pause();
-      musicButton.textContent = "Play Music";
+      if((row+Math.floor(x/100))%4===0){
+        const kx=x+w*.55,ky=y+plankH*.52;
+        g.beginPath();g.ellipse(kx,ky,17,6,-.12,0,Math.PI*2);
+        g.strokeStyle='rgba(35,15,6,.38)';g.lineWidth=2;g.stroke();
+        g.beginPath();g.ellipse(kx,ky,8,3,-.12,0,Math.PI*2);
+        g.strokeStyle='rgba(35,15,6,.3)';g.lineWidth=1;g.stroke();
+      }
+      x+=w;
     }
-  });
-
-  // Main animation
-  function animate() {
-    requestAnimationFrame(animate);
-
-    updateMovement();
-
-    camera.rotation.y = yaw;
-    camera.rotation.x = pitch;
-
-    renderer.render(scene, camera);
+    g.fillStyle='rgba(30,16,9,.48)';g.fillRect(0,y+plankH-2,1536,3);
+    let joint=offset;
+    while(joint<1536){g.fillStyle='rgba(32,17,9,.65)';g.fillRect(joint,y+2,3,plankH-4);joint+=430;}
   }
+  const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+  tex.wrapS=THREE.RepeatWrapping;tex.wrapT=THREE.RepeatWrapping;
+  tex.repeat.set(1,1);tex.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  return tex;
+}
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(18,16),new THREE.MeshStandardMaterial({map:makeHardwoodTexture(),roughness:.62,metalness:0}));
+floor.rotation.x=-Math.PI/2;floor.position.y=-.005;floor.receiveShadow=true;room.add(floor);
 
-  animate();
+// Softer, warmer lighting than the first test.
+scene.add(new THREE.HemisphereLight(0xffecd2,0x514438,.62));
+const mainLight=new THREE.DirectionalLight(0xffe6c4,.52);mainLight.position.set(-3,8,5);scene.add(mainLight);
+const fillLight=new THREE.PointLight(0xffdcae,13,22,2);fillLight.position.set(0,4.7,-3.5);scene.add(fillLight);
 
-  // Resize
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+// Artwork frames: the image plane sits clearly in front of the frame, so it cannot be covered.
+const frameMat=new THREE.MeshStandardMaterial({color:0x382719,roughness:.48,metalness:.08});
+const brassMat=new THREE.MeshStandardMaterial({color:0xb69a6b,roughness:.45,metalness:.25});
+const loader=new THREE.TextureLoader();
+const poemTargets=[];
+function addFramedArtwork(file,x,y,w,h,isPoem){
+  const group=new THREE.Group();group.position.set(x,y,-7.78);room.add(group);
+  const backing=new THREE.Mesh(new THREE.BoxGeometry(w+.34,h+.34,.18),frameMat);group.add(backing);
+  const mat=new THREE.MeshBasicMaterial({color:isPoem?0xece5d8:0x6f675b,side:THREE.DoubleSide});
+  const image=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);image.position.z=.145;group.add(image);
+  const rail=.055,depth=.07,z=.13;
+  const rails=[
+    [w+.12,rail,depth,0,h/2+.035,z],
+    [w+.12,rail,depth,0,-h/2-.035,z],
+    [rail,h,depth,-w/2-.035,0,z],
+    [rail,h,depth,w/2+.035,0,z]
+  ];
+  rails.forEach(([rw,rh,rd,rx,ry,rz])=>{
+    const r=new THREE.Mesh(new THREE.BoxGeometry(rw,rh,rd),brassMat);
+    r.position.set(rx,ry,rz);group.add(r);
   });
+  loader.load(file,texture=>{
+    texture.colorSpace=THREE.SRGBColorSpace;
+    texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+    mat.map=texture;mat.color.set(0xffffff);mat.needsUpdate=true;
+  },undefined,()=>{
+    console.warn('Image could not be loaded: '+file);
+    if(isPoem)hint.textContent='Poem image not found — check that HorseHills.png is beside preview.html';
+  });
+  if(isPoem)poemTargets.push(image);
+  return image;
+}
+addFramedArtwork('HorseHills.jpg',-2.45,3.05,5.15,3.35,false);
+addFramedArtwork('HorseHills.png',3.15,3.0,2.8,3.8,true);
 
+// Slow, bounded movement. Navigation is unchanged from the working room.
+const held={forward:false,back:false,left:false,right:false},keys={};
+let yaw=0,pitch=0,dragging=false,lastX=0,lastY=0,entered=false;
+const clock=new THREE.Clock();
+function update(dt){
+  const turn=.72*dt;
+  if(keys.ArrowLeft||held.left)yaw+=turn;
+  if(keys.ArrowRight||held.right)yaw-=turn;
+  const speed=1.05*dt;let forward=0;
+  if(keys.KeyW||keys.ArrowUp||held.forward)forward+=speed;
+  if(keys.KeyS||keys.ArrowDown||held.back)forward-=speed;
+  if(forward){
+    camera.position.x-=Math.sin(yaw)*forward;
+    camera.position.z-=Math.cos(yaw)*forward;
+  }
+  camera.position.x=THREE.MathUtils.clamp(camera.position.x,-7.4,7.4);
+  camera.position.z=THREE.MathUtils.clamp(camera.position.z,-6.7,6.7);
+  camera.rotation.set(pitch,yaw,0,'YXZ');
+}
+addEventListener('keydown',e=>{keys[e.code]=true;if(e.code.startsWith('Arrow'))e.preventDefault();});
+addEventListener('keyup',e=>keys[e.code]=false);
+renderer.domElement.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse'||e.pointerType==='pen'){
+    dragging=true;lastX=e.clientX;lastY=e.clientY;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  }
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(!dragging)return;
+  const dx=e.clientX-lastX,dy=e.clientY-lastY;
+  yaw-=dx*.0015;
+  pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);
+  lastX=e.clientX;lastY=e.clientY;
+});
+renderer.domElement.addEventListener('pointerup',()=>dragging=false);
+renderer.domElement.addEventListener('pointercancel',()=>dragging=false);
+let touchLook=null;
+renderer.domElement.addEventListener('touchstart',e=>{
+  if(e.touches.length===1)touchLook={x:e.touches[0].clientX,y:e.touches[0].clientY};
+},{passive:true});
+renderer.domElement.addEventListener('touchmove',e=>{
+  if(!touchLook||e.touches.length!==1)return;
+  const t=e.touches[0],dx=t.clientX-touchLook.x,dy=t.clientY-touchLook.y;
+  yaw-=dx*.0018;
+  pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);
+  touchLook={x:t.clientX,y:t.clientY};
+},{passive:true});
+renderer.domElement.addEventListener('touchend',()=>touchLook=null);
+document.querySelectorAll('[data-move]').forEach(b=>{
+  const d=b.dataset.move;
+  b.addEventListener('pointerdown',e=>{e.preventDefault();held[d]=true;});
+  ['pointerup','pointerleave','pointercancel','lostpointercapture'].forEach(ev=>
+    b.addEventListener(ev,()=>held[d]=false)
+  );
+});
+
+// Open the poem from either the framed image or the always-visible Read poem button.
+const modal=document.getElementById('poemModal');
+function openPoem(){modal.style.display='flex';}
+document.getElementById('readPoem').addEventListener('click',openPoem);
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+renderer.domElement.addEventListener('click',e=>{
+  if(!entered||dragging||!poemTargets.length)return;
+  pointer.x=(e.clientX/innerWidth)*2-1;
+  pointer.y=-(e.clientY/innerHeight)*2+1;
+  raycaster.setFromCamera(pointer,camera);
+  if(raycaster.intersectObjects(poemTargets).length)openPoem();
+});
+document.getElementById('closePoem').addEventListener('click',()=>modal.style.display='none');
+modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});
+document.getElementById('poemImage').addEventListener('error',()=>{
+  hint.textContent='Poem file not found — check the spelling of HorseHills.png';
+});
+
+// Start music from the visitor's tap, and keep a separate play/pause button available.
+const song=document.getElementById('roomSong');
+const musicButton=document.getElementById('musicButton');
+const musicStatus=document.getElementById('musicStatus');
+async function playSong(){
+  try{
+    await song.play();
+    musicButton.textContent='Pause music';
+    musicStatus.textContent='Music playing';
+  }catch(err){
+    musicButton.textContent='Play music';
+    musicStatus.textContent='Tap Play music to start';
+    console.warn('Audio playback did not start:',err);
+  }
+}
+function pauseSong(){
+  song.pause();
+  musicButton.textContent='Play music';
+  musicStatus.textContent='Music paused';
+}
+document.getElementById('enterButton').addEventListener('click',()=>{
+  entered=true;
+  document.getElementById('enter').style.display='none';
+  playSong();
+});
+musicButton.addEventListener('click',()=>{if(song.paused)playSong();else pauseSong();});
+song.addEventListener('error',()=>{
+  musicStatus.textContent='Song file not found — check horsehills.mp3';
+  musicButton.textContent='Play music';
+});
+song.addEventListener('ended',()=>{musicStatus.textContent='Music ended';});
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),.05);
+  if(entered)update(dt);
+  renderer.render(scene,camera);
+}
+animate();
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
 })();
 </script>
-
 </body>
 </html>
+
  
  
