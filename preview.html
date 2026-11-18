@@ -34,8 +34,9 @@ button{font:14px Arial,sans-serif;color:#f7eddd;background:#55452f;border:1px so
   <div class="stack"><button data-move="left" aria-label="Turn left">←</button><button data-move="right" aria-label="Turn right">→</button></div>
 </div>
 <div id="enter"><div id="enterCard"><h1>Tullee &amp; Spring</h1><button id="enterButton">ENTER</button></div></div>
-<div id="poemModal"><button id="closePoem">Close poem</button><img id="poemImage" src="HorseHills.png" alt="HorseHills poem"></div>
-<audio id="roomSong" src="horsehills.mp3" preload="auto" loop></audio>
+<div id="poemModal"><button id="closePoem">Close poem</button><img id="poemImage" src="assets/poem/HorseHills.png" alt="HorseHills poem"></div>
+<audio id="roomSong" src="assets/music/horse hills.mp3" preload="auto" loop></audio>
+
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 (()=>{'use strict';
@@ -65,7 +66,8 @@ panel(18,6.2,.22,wallMat,0,3.0,-8);
 panel(18,6.2,.22,sideMat,0,3.0,8);
 panel(.22,6.2,16,sideMat,-9,3,0);
 panel(.22,6.2,16,sideMat,9,3,0);
-// Subtle floorboard seams, kept understated so the artwork remains the focus.
+
+// Subtle floorboard seams.
 const seamMat=new THREE.MeshBasicMaterial({color:0x4b3828,transparent:true,opacity:.28});
 for(let x=-8.5;x<=8.5;x+=1.5){const seam=new THREE.Mesh(new THREE.BoxGeometry(.012,.004,15.8),seamMat);seam.position.set(x,.002,0);room.add(seam)}
 for(let z=-7.2;z<=7.2;z+=3){const seam=new THREE.Mesh(new THREE.BoxGeometry(17.8,.004,.012),seamMat);seam.position.set(0,.003,z);room.add(seam)}
@@ -74,7 +76,7 @@ scene.add(new THREE.HemisphereLight(0xfff4df,0x51483d,1.35));
 const mainLight=new THREE.DirectionalLight(0xffedcf,1.45);mainLight.position.set(-3,7,5);scene.add(mainLight);
 const fillLight=new THREE.PointLight(0xffe5c2,38,20,2);fillLight.position.set(0,4.8,-3.8);scene.add(fillLight);
 
-// Matching frames for the photograph and poem, mounted on the far wall.
+// Matching frames for the photograph and poem.
 const frameMat=new THREE.MeshStandardMaterial({color:0x493723,roughness:.5,metalness:.12});
 const innerMat=new THREE.MeshStandardMaterial({color:0xe7ddc8,roughness:.9});
 function framedImage(src,x,y,w,h,isPoem=false){
@@ -82,17 +84,18 @@ function framedImage(src,x,y,w,h,isPoem=false){
   const backing=new THREE.Mesh(new THREE.BoxGeometry(w+.34,h+.34,.18),frameMat);group.add(backing);
   const mat=new THREE.MeshBasicMaterial({color:0xffffff});
   const image=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);image.position.z=.105;group.add(image);
-  const loader=new THREE.TextureLoader();loader.load(src,t=>{t.colorSpace=THREE.SRGBColorSpace;mat.map=t;mat.needsUpdate=true},undefined,()=>{mat.color.set(isPoem?0xe9e2d4:0x777064)});
+  const loader=new THREE.TextureLoader();
+  loader.load(src,t=>{t.colorSpace=THREE.SRGBColorSpace;mat.map=t;mat.needsUpdate=true},undefined,()=>{mat.color.set(isPoem?0xe9e2d4:0x777064)});
   const trim=new THREE.Mesh(new THREE.BoxGeometry(w+.08,h+.08,.035),innerMat);trim.position.z=.075;group.add(trim);image.position.z=.098;
-  // Keep the visible artwork in front of the light mat and frame.
   image.renderOrder=2;mat.depthTest=true;
   return {group,image};
 }
-// Landscape photograph at left; poem panel at right. Both remain fixed and evenly lit.
-const photo=framedImage('HorseHills.jpg',-3.0,3.15,4.7,3.0,false);
-const poem=framedImage('HorseHills.png',3.05,3.15,3.25,4.15,true);
 
-// Slow, bounded movement. Visitors can turn and take a few steps, but cannot leave the room.
+// Photograph on left; poem on right.
+const photo=framedImage('assets/photos/HorseHills.jpg',-3.0,3.15,4.7,3.0,false);
+const poem=framedImage('assets/poem/HorseHills.png',3.05,3.15,3.25,4.15,true);
+
+// Slow, bounded movement.
 const held={forward:false,back:false,left:false,right:false};
 const keys={};let yaw=0,pitch=0,dragging=false,lastX=0,lastY=0,entered=false;
 const clock=new THREE.Clock();
@@ -101,7 +104,9 @@ function update(dt){
   if(keys.ArrowLeft||held.left)yaw+=turn;
   if(keys.ArrowRight||held.right)yaw-=turn;
   const speed=1.05*dt;
-  let forward=0;if(keys.KeyW||keys.ArrowUp||held.forward)forward+=speed;if(keys.KeyS||keys.ArrowDown||held.back)forward-=speed;
+  let forward=0;
+  if(keys.KeyW||keys.ArrowUp||held.forward)forward+=speed;
+  if(keys.KeyS||keys.ArrowDown||held.back)forward-=speed;
   if(forward){camera.position.x-=Math.sin(yaw)*forward;camera.position.z-=Math.cos(yaw)*forward;}
   camera.position.x=THREE.MathUtils.clamp(camera.position.x,-7.4,7.4);
   camera.position.z=THREE.MathUtils.clamp(camera.position.z,-6.7,6.7);
@@ -109,38 +114,88 @@ function update(dt){
 }
 addEventListener('keydown',e=>{keys[e.code]=true;if(e.code.startsWith('Arrow'))e.preventDefault()});
 addEventListener('keyup',e=>keys[e.code]=false);
-renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||e.pointerType==='pen'){dragging=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)}});
-renderer.domElement.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;yaw-=dx*.0015;pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);lastX=e.clientX;lastY=e.clientY});
+
+renderer.domElement.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse'||e.pointerType==='pen'){
+    dragging=true;lastX=e.clientX;lastY=e.clientY;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  }
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(!dragging)return;
+  const dx=e.clientX-lastX,dy=e.clientY-lastY;
+  yaw-=dx*.0015;
+  pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);
+  lastX=e.clientX;lastY=e.clientY;
+});
 renderer.domElement.addEventListener('pointerup',()=>dragging=false);
 renderer.domElement.addEventListener('pointercancel',()=>dragging=false);
-let touchLook=null;
-renderer.domElement.addEventListener('touchstart',e=>{if(e.touches.length===1)touchLook={x:e.touches[0].clientX,y:e.touches[0].clientY}},{passive:true});
-renderer.domElement.addEventListener('touchmove',e=>{if(!touchLook||e.touches.length!==1)return;const t=e.touches[0],dx=t.clientX-touchLook.x,dy=t.clientY-touchLook.y;yaw-=dx*.0018;pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);touchLook={x:t.clientX,y:t.clientY}},{passive:true});
-renderer.domElement.addEventListener('touchend',()=>touchLook=null);
-document.querySelectorAll('[data-move]').forEach(b=>{const d=b.dataset.move;b.addEventListener('pointerdown',e=>{e.preventDefault();held[d]=true});['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>held[d]=false))});
 
-// Tapping/clicking the poem opens a large, readable version.
+let touchLook=null;
+renderer.domElement.addEventListener('touchstart',e=>{
+  if(e.touches.length===1)touchLook={x:e.touches[0].clientX,y:e.touches[0].clientY}
+},{passive:true});
+renderer.domElement.addEventListener('touchmove',e=>{
+  if(!touchLook||e.touches.length!==1)return;
+  const t=e.touches[0],dx=t.clientX-touchLook.x,dy=t.clientY-touchLook.y;
+  yaw-=dx*.0018;
+  pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);
+  touchLook={x:t.clientX,y:t.clientY};
+},{passive:true});
+renderer.domElement.addEventListener('touchend',()=>touchLook=null);
+
+document.querySelectorAll('[data-move]').forEach(b=>{
+  const d=b.dataset.move;
+  b.addEventListener('pointerdown',e=>{e.preventDefault();held[d]=true});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>held[d]=false));
+});
+
+// Tapping the poem opens a large version.
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
 renderer.domElement.addEventListener('click',e=>{
   if(dragging||!entered)return;
-  pointer.x=(e.clientX/innerWidth)*2-1;pointer.y=-(e.clientY/innerHeight)*2+1;
+  pointer.x=(e.clientX/innerWidth)*2-1;
+  pointer.y=-(e.clientY/innerHeight)*2+1;
   raycaster.setFromCamera(pointer,camera);
-  if(raycaster.intersectObject(poem.image).length){document.getElementById('poemModal').style.display='flex'}
+  if(raycaster.intersectObject(poem.image).length){
+    document.getElementById('poemModal').style.display='flex';
+  }
 });
-document.getElementById('closePoem').addEventListener('click',()=>document.getElementById('poemModal').style.display='none');
-document.getElementById('poemModal').addEventListener('click',e=>{if(e.target.id==='poemModal')e.currentTarget.style.display='none'});
+document.getElementById('closePoem').addEventListener('click',()=>{
+  document.getElementById('poemModal').style.display='none';
+});
+document.getElementById('poemModal').addEventListener('click',e=>{
+  if(e.target.id==='poemModal')e.currentTarget.style.display='none';
+});
 
-const song=document.getElementById('roomSong');song.loop=true;
+const song=document.getElementById('roomSong');
+song.loop=true;
 document.getElementById('enterButton').addEventListener('click',()=>{
-  entered=true;document.getElementById('enter').style.display='none';
-  song.play().catch(()=>{document.getElementById('hint').textContent='Tap the music control if playback is blocked by your browser.'});
+  entered=true;
+  document.getElementById('enter').style.display='none';
+  song.play().catch(()=>{
+    document.getElementById('hint').textContent='Tap the music control if playback is blocked by your browser.';
+  });
 });
-function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05);if(entered)update(dt);renderer.render(scene,camera)}animate();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),.05);
+  if(entered)update(dt);
+  renderer.render(scene,camera);
+}
+animate();
+
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
 })();
 </script>
 </body>
 </html>
+
 
 
 
