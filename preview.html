@@ -3,220 +3,323 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Tullee &amp; Spring — HorseHills</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tullee and Spring — HorseHills</title>
+
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#171512;font-family:Georgia,serif}
-canvas{display:block;touch-action:none}
-#heading{position:fixed;z-index:4;top:14px;left:16px;color:#f1e8d8;font:12px/1.4 Arial,sans-serif;letter-spacing:.14em;text-shadow:0 1px 5px #000;pointer-events:none}
-#hint{position:fixed;z-index:4;left:50%;bottom:15px;transform:translateX(-50%);max-width:90vw;padding:8px 12px;border-radius:18px;background:rgba(25,22,18,.72);color:#eee3d0;font:12px Arial,sans-serif;text-align:center;pointer-events:none}
-#enter{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(12,11,9,.78)}
-#enterCard{max-width:440px;padding:28px 26px;text-align:center;color:#f3eadb;background:rgba(34,29,23,.96);border:1px solid #a78c62;border-radius:8px}
-#enterCard h1{margin:0 0 12px;font-weight:normal;font-size:clamp(25px,5vw,36px)}
-#enterCard p{line-height:1.55;color:#ddd1bd}
-button{font:14px Arial,sans-serif;color:#f7eddd;background:#55452f;border:1px solid #b69b70;border-radius:22px;padding:11px 17px;cursor:pointer;touch-action:manipulation}
-#enterButton{margin-top:8px;padding:12px 24px}
 
-/* Scrollable poem reader */
-#poemModal{
-  display:none;
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#17120e;
+  font-family:Georgia,serif;
+}
+
+canvas{display:block;touch-action:none}
+
+#heading{
+  position:fixed;
+  top:18px;
+  left:22px;
+  z-index:5;
+  color:#eee4d3;
+  font:13px Arial,sans-serif;
+  letter-spacing:2px;
+  text-shadow:0 2px 5px #000;
+}
+
+#hint{
+  position:fixed;
+  bottom:18px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:5;
+  color:#eee4d3;
+  background:#211c17cc;
+  padding:10px 16px;
+  border-radius:20px;
+  font:12px Arial,sans-serif;
+  text-align:center;
+  white-space:nowrap;
+}
+
+#enter,#poemModal{
   position:fixed;
   inset:0;
-  z-index:20;
-  padding:58px 12px 18px;
-  background:rgba(8,7,6,.96);
+  z-index:10;
+  display:flex;
   align-items:center;
   justify-content:center;
+  background:#100d0bc9;
+  padding:20px;
 }
-#poemPanel{
-  width:min(94vw,900px);
-  max-height:calc(100vh - 82px);
+
+#enterCard{
+  background:#292219;
+  border:1px solid #b49a70;
+  color:#f1e6d5;
+  padding:35px;
+  text-align:center;
+  max-width:400px;
+}
+
+#enterCard h1{
+  font-weight:normal;
+  letter-spacing:2px;
+}
+
+button{
+  background:#665039;
+  color:#fff1dc;
+  border:1px solid #c2a77c;
+  border-radius:22px;
+  padding:12px 22px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+#poemModal{
+  display:none;
+  z-index:20;
+  flex-direction:column;
+  justify-content:flex-start;
   overflow-y:auto;
-  overflow-x:hidden;
-  padding:14px;
-  background:#e9e2d3;
-  border-radius:5px;
-  box-shadow:0 8px 35px #000;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
-  touch-action:pan-y;
+  background:#080706f5;
 }
+
+#closePoem{
+  position:sticky;
+  top:0;
+  align-self:flex-end;
+  flex-shrink:0;
+}
+
 #poemImage{
   display:block;
   width:auto;
+  max-width:94vw;
   height:auto;
-  max-width:100%;
-  margin:0 auto;
+  max-height:none;
   object-fit:contain;
+  margin:10px auto 25px;
 }
-#closePoem{
-  position:absolute;
-  top:12px;
-  right:16px;
-  z-index:22;
-  background:#55452f;
+
+#touchControls{
+  display:none;
+  position:fixed;
+  bottom:60px;
+  left:15px;
+  z-index:6;
+  gap:8px;
 }
-#touchControls{position:fixed;z-index:5;left:14px;bottom:58px;display:none;gap:8px;align-items:center}
-#touchControls button{width:48px;height:48px;padding:0;border-radius:50%;font-size:20px;background:rgba(42,35,27,.82);user-select:none;-webkit-user-select:none}
-#touchControls .stack{display:flex;flex-direction:column;gap:7px}
+
+#touchControls button{
+  width:48px;
+  height:48px;
+  padding:0;
+  border-radius:50%;
+}
+
 @media(pointer:coarse){
   #touchControls{display:flex}
-  #hint{bottom:13px;left:auto;right:12px;transform:none;max-width:48vw}
+  #hint{
+    left:auto;
+    right:10px;
+    transform:none;
+    white-space:normal;
+    max-width:48vw;
+  }
 }
 </style>
 </head>
+
 <body>
 
-<div id="heading">TULLEE &amp; SPRING · INSTALLATION 1</div>
-<div id="hint">Drag to look · Use the arrows to move · Tap the poem to enlarge</div>
+<div id="heading">TULLEE AND SPRING · HORSEHILLS</div>
 
-<div id="touchControls" aria-label="Movement controls">
-  <div class="stack">
-    <button data-move="forward" aria-label="Forward">↑</button>
-    <button data-move="back" aria-label="Back">↓</button>
-  </div>
-  <div class="stack">
-    <button data-move="left" aria-label="Turn left">←</button>
-    <button data-move="right" aria-label="Turn right">→</button>
-  </div>
+<div id="hint">
+  WASD or arrows to walk · Drag to look · Tap poem to enlarge
+</div>
+
+<div id="touchControls">
+  <button data-move="forward">↑</button>
+  <button data-move="back">↓</button>
+  <button data-move="left">←</button>
+  <button data-move="right">→</button>
 </div>
 
 <div id="enter">
   <div id="enterCard">
-    <h1>Tullee &amp; Spring</h1>
+    <h1>Tullee and Spring</h1>
     <p>HorseHills</p>
-    <p>Enter the room, take a look around, and spend a little time with the photograph and poem.</p>
-    <button id="enterButton">Enter the room</button>
+    <button id="enterButton">ENTER ROOM</button>
   </div>
 </div>
 
 <div id="poemModal">
   <button id="closePoem">Close poem</button>
-  <div id="poemPanel">
-    <img id="poemImage" src="assets/poem/HorseHills.png" alt="HorseHills poem">
-  </div>
+  <img id="poemImage"
+       src="assets/poem/HorseHills.png"
+       alt="HorseHills poem">
 </div>
 
-<audio id="roomSong" src="assets/music/horse%20hills.mp3" preload="auto" loop></audio>
+<audio id="roomSong"
+       src="assets/music/horse hills.mp3"
+       preload="auto"
+       loop></audio>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
 <script>
 (()=>{
 'use strict';
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xaaa397);
+/* SCENE */
 
-const camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);
-camera.position.set(0,1.65,6.4);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x211b15);
+
+const camera=new THREE.PerspectiveCamera(
+  62,innerWidth/innerHeight,.1,100
+);
+
+camera.position.set(0,1.65,4.5);
 camera.rotation.order='YXZ';
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
+
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=.72;
+renderer.toneMappingExposure=1.3;
+renderer.shadowMap.enabled=true;
+
 document.body.appendChild(renderer.domElement);
 
-// Room structure
+
+/* ROOM SIZE: 14 x 12 x 6.4 */
+
 const room=new THREE.Group();
 scene.add(room);
 
-const wallMat=new THREE.MeshStandardMaterial({color:0xd0c8b9,roughness:1});
-const sideMat=new THREE.MeshStandardMaterial({color:0xc3b9a9,roughness:1});
-const ceilingMat=new THREE.MeshStandardMaterial({color:0xe0d9cc,roughness:1});
+const wallMat=new THREE.MeshStandardMaterial({
+  color:0x827767,
+  roughness:.95
+});
+
+const sideMat=new THREE.MeshStandardMaterial({
+  color:0x665b4c,
+  roughness:.95
+});
+
+const ceilingMat=new THREE.MeshStandardMaterial({
+  color:0x9b907e,
+  roughness:1
+});
 
 function panel(w,h,d,mat,x,y,z){
-  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+  const m=new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),mat
+  );
   m.position.set(x,y,z);
   room.add(m);
   return m;
 }
 
-// Hardwood texture: warm color, fine grain, restrained board joints.
-function makeWoodTexture(){
-  const canvas=document.createElement('canvas');
-  canvas.width=1024;
-  canvas.height=1024;
-  const ctx=canvas.getContext('2d');
 
-  ctx.fillStyle='#806344';
-  ctx.fillRect(0,0,1024,1024);
+/* HARDWOOD FLOOR */
 
-  const boardHeight=128;
+const floorTexture=new THREE.TextureLoader().load(
+  "https://threejs.org/examples/textures/hardwood2_diffuse.jpg"
+);
 
-  for(let y=0;y<1024;y+=boardHeight){
-    ctx.fillStyle=(y%256===0)?'#896d4e':'#806243';
-    ctx.fillRect(0,y,1024,boardHeight);
+floorTexture.colorSpace=THREE.SRGBColorSpace;
+floorTexture.wrapS=THREE.RepeatWrapping;
+floorTexture.wrapT=THREE.RepeatWrapping;
+floorTexture.repeat.set(5,4);
 
-    for(let i=0;i<34;i++){
-      const gy=y+Math.random()*boardHeight;
-      const start=Math.random()*250;
-      const length=250+Math.random()*700;
-
-      ctx.beginPath();
-      ctx.moveTo(start,gy);
-      ctx.bezierCurveTo(
-        start+length*.3,gy-2+Math.random()*4,
-        start+length*.7,gy-2+Math.random()*4,
-        Math.min(1024,start+length),gy
-      );
-      ctx.strokeStyle=Math.random()>.5
-        ?'rgba(42,27,15,0.055)'
-        :'rgba(238,207,163,0.055)';
-      ctx.lineWidth=.5+Math.random()*1.2;
-      ctx.stroke();
-    }
-
-    ctx.fillStyle='rgba(38,25,15,0.12)';
-    ctx.fillRect(0,y+boardHeight-1,1024,1);
-  }
-
-  for(let y=0;y<1024;y+=boardHeight){
-    const x=(Math.floor(y/boardHeight)%2===0)?340:700;
-    ctx.fillStyle='rgba(38,25,15,0.13)';
-    ctx.fillRect(x,y,1,boardHeight);
-  }
-
-  const texture=new THREE.CanvasTexture(canvas);
-  texture.colorSpace=THREE.SRGBColorSpace;
-  texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
-  return texture;
-}
-
-const woodTexture=makeWoodTexture();
 const floorMat=new THREE.MeshStandardMaterial({
-  map:woodTexture,
-  color:0xffffff,
-  roughness:.34,
-  metalness:.025
+  map:floorTexture,
+  roughness:.62
 });
 
-panel(18,.22,16,floorMat,0,-.12,0);
-panel(18,.22,16,ceilingMat,0,6.2,0);
-panel(18,6.2,.22,wallMat,0,3,-8);
-panel(18,6.2,.22,sideMat,0,3,8);
-panel(.22,6.2,16,sideMat,-9,3,0);
-panel(.22,6.2,16,sideMat,9,3,0);
+const floor=new THREE.Mesh(
+  new THREE.PlaneGeometry(14,12),
+  floorMat
+);
 
-// Softer, warmer lighting.
-scene.add(new THREE.HemisphereLight(0xfff0d8,0x51483d,.52));
+floor.rotation.x=-Math.PI/2;
+floor.position.y=0;
+floor.receiveShadow=true;
+room.add(floor);
 
-const mainLight=new THREE.DirectionalLight(0xffedcf,.52);
-mainLight.position.set(-3,7,5);
+
+/* WALLS AND CEILING */
+
+panel(14,.2,12,ceilingMat,0,6.5,0);
+
+panel(14,6.4,.2,wallMat,0,3.2,-6);
+
+panel(.2,6.4,12,sideMat,-7,3.2,0);
+panel(.2,6.4,12,sideMat,7,3.2,0);
+
+/* Entrance wall with open doorway */
+
+panel(5.3,6.4,.2,sideMat,-4.35,3.2,6);
+panel(5.3,6.4,.2,sideMat,4.35,3.2,6);
+panel(3.4,.8,.2,sideMat,0,6,6);
+
+
+/* LIGHTING */
+
+scene.add(new THREE.HemisphereLight(
+  0xffedda,0x55483a,1.6
+));
+
+const mainLight=new THREE.DirectionalLight(
+  0xffe5c4,2
+);
+
+mainLight.position.set(-3,6,4);
 scene.add(mainLight);
 
-const fillLight=new THREE.PointLight(0xffdfb5,9,20,2);
-fillLight.position.set(0,4.8,-3.8);
-scene.add(fillLight);
+/* Warm room illumination */
 
-// Artwork frames
+const roomLight=new THREE.PointLight(
+  0xffd9a6,65,17,2
+);
+
+roomLight.position.set(0,4.8,0);
+scene.add(roomLight);
+
+/* Brighter photograph illumination */
+
+const photoLight=new THREE.PointLight(
+  0xffe5bd,85,10,2
+);
+
+photoLight.position.set(-2.5,4.8,-3.8);
+scene.add(photoLight);
+
+/* Softer poem illumination */
+
+const poemLight=new THREE.PointLight(
+  0xffe5c4,48,8,2
+);
+
+poemLight.position.set(2.7,4.5,-3.5);
+scene.add(poemLight);
+
+
+/* PICTURE AND POEM FRAMES */
+
 const frameMat=new THREE.MeshStandardMaterial({
   color:0x493723,
-  roughness:.5,
-  metalness:.12
+  roughness:.5
 });
 
 const innerMat=new THREE.MeshStandardMaterial({
@@ -224,77 +327,116 @@ const innerMat=new THREE.MeshStandardMaterial({
   roughness:.9
 });
 
-function framedImage(src,x,y,w,h,isPoem=false){
+function framedImage(src,x,y,w,h){
+
   const group=new THREE.Group();
-  group.position.set(x,y,-7.82);
+
+  group.position.set(x,y,-5.78);
   room.add(group);
 
   const backing=new THREE.Mesh(
     new THREE.BoxGeometry(w+.34,h+.34,.18),
     frameMat
   );
+
   group.add(backing);
 
-  const mat=new THREE.MeshBasicMaterial({color:0xffffff});
-  const image=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
-  image.position.z=.098;
-  image.renderOrder=2;
+  const mat=new THREE.MeshBasicMaterial({
+    color:0xffffff
+  });
+
+  const image=new THREE.Mesh(
+    new THREE.PlaneGeometry(w,h),
+    mat
+  );
+
+  image.position.z=.105;
   group.add(image);
 
   const trim=new THREE.Mesh(
     new THREE.BoxGeometry(w+.08,h+.08,.035),
     innerMat
   );
+
   trim.position.z=.075;
   group.add(trim);
 
   const loader=new THREE.TextureLoader();
-  loader.load(
-    src,
-    t=>{
-      t.colorSpace=THREE.SRGBColorSpace;
-      mat.map=t;
-      mat.needsUpdate=true;
-    },
-    undefined,
-    ()=>{
-      mat.color.set(isPoem?0xe9e2d4:0x777064);
-      console.warn('Could not load artwork:',src);
-    }
-  );
+
+  loader.load(src,t=>{
+    t.colorSpace=THREE.SRGBColorSpace;
+    mat.map=t;
+    mat.needsUpdate=true;
+  },undefined,()=>{
+    console.error("Could not load image:",src);
+  });
+
+  image.renderOrder=2;
 
   return {group,image};
 }
 
-// HorseHills photograph and poem
-const photo=framedImage('assets/photos/HorseHills.jpg',-3,3.15,4.7,3,false);
-const poem=framedImage('assets/poem/HorseHills.png',3.05,3.15,3.25,4.15,true);
 
-// Movement
-const held={forward:false,back:false,left:false,right:false};
+/* HORSEHILLS PHOTOGRAPH */
+
+const photo=framedImage(
+  "assets/photos/HorseHills.jpg",
+  -2.55,3.1,4.7,3.0
+);
+
+
+/* HORSEHILLS POEM */
+
+const poem=framedImage(
+  "assets/poem/HorseHills.png",
+  2.65,3.1,2.8,3.9
+);
+
+
+/* MOVEMENT */
+
 const keys={};
-let yaw=0,pitch=0,dragging=false,lastX=0,lastY=0,entered=false;
+const held={
+  forward:false,
+  back:false,
+  left:false,
+  right:false
+};
+
+let yaw=0;
+let pitch=0;
+let dragging=false;
+let movedPointer=false;
+let lastX=0;
+let lastY=0;
+let entered=false;
+
 const clock=new THREE.Clock();
 
 function update(dt){
-  const turn=.72*dt;
 
-  if(keys.ArrowLeft||held.left)yaw+=turn;
-  if(keys.ArrowRight||held.right)yaw-=turn;
+  const turn=.85*dt;
+  const speed=1.4*dt;
 
-  const speed=1.05*dt;
+  if(keys.ArrowLeft||keys.KeyA||held.left)yaw+=turn;
+  if(keys.ArrowRight||keys.KeyD||held.right)yaw-=turn;
+
   let forward=0;
 
   if(keys.KeyW||keys.ArrowUp||held.forward)forward+=speed;
   if(keys.KeyS||keys.ArrowDown||held.back)forward-=speed;
 
-  if(forward){
-    camera.position.x-=Math.sin(yaw)*forward;
-    camera.position.z-=Math.cos(yaw)*forward;
-  }
+  camera.position.x-=Math.sin(yaw)*forward;
+  camera.position.z-=Math.cos(yaw)*forward;
 
-  camera.position.x=THREE.MathUtils.clamp(camera.position.x,-7.4,7.4);
-  camera.position.z=THREE.MathUtils.clamp(camera.position.z,-6.7,6.7);
+  camera.position.x=THREE.MathUtils.clamp(
+    camera.position.x,-5.8,5.8
+  );
+
+  camera.position.z=THREE.MathUtils.clamp(
+    camera.position.z,-4.8,4.8
+  );
+
   camera.rotation.set(pitch,yaw,0,'YXZ');
 }
 
@@ -302,12 +444,18 @@ addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(e.code.startsWith('Arrow'))e.preventDefault();
 });
-addEventListener('keyup',e=>keys[e.code]=false);
 
-// Mouse look
+addEventListener('keyup',e=>{
+  keys[e.code]=false;
+});
+
+
+/* LOOK CONTROLS */
+
 renderer.domElement.addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse'||e.pointerType==='pen'){
     dragging=true;
+    movedPointer=false;
     lastX=e.clientX;
     lastY=e.clientY;
     renderer.domElement.setPointerCapture(e.pointerId);
@@ -316,113 +464,130 @@ renderer.domElement.addEventListener('pointerdown',e=>{
 
 renderer.domElement.addEventListener('pointermove',e=>{
   if(!dragging)return;
+
   const dx=e.clientX-lastX;
   const dy=e.clientY-lastY;
+
+  if(Math.abs(dx)+Math.abs(dy)>2)movedPointer=true;
+
   yaw-=dx*.0015;
-  pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);
+
+  pitch=THREE.MathUtils.clamp(
+    pitch+dy*.0012,-.38,.38
+  );
+
   lastX=e.clientX;
   lastY=e.clientY;
 });
 
-renderer.domElement.addEventListener('pointerup',()=>dragging=false);
-renderer.domElement.addEventListener('pointercancel',()=>dragging=false);
+renderer.domElement.addEventListener('pointerup',()=>{
+  dragging=false;
+});
 
-// Touch look
-let touchLook=null;
+renderer.domElement.addEventListener('pointercancel',()=>{
+  dragging=false;
+});
 
-renderer.domElement.addEventListener('touchstart',e=>{
-  if(e.touches.length===1){
-    touchLook={x:e.touches[0].clientX,y:e.touches[0].clientY};
-  }
-},{passive:true});
 
-renderer.domElement.addEventListener('touchmove',e=>{
-  if(!touchLook||e.touches.length!==1)return;
-  const t=e.touches[0];
-  const dx=t.clientX-touchLook.x;
-  const dy=t.clientY-touchLook.y;
+/* TOUCH MOVEMENT */
 
-  yaw-=dx*.0018;
-  pitch=THREE.MathUtils.clamp(pitch+dy*.0012,-.38,.38);
-  touchLook={x:t.clientX,y:t.clientY};
-},{passive:true});
-
-renderer.domElement.addEventListener('touchend',()=>touchLook=null);
-
-// Touch movement buttons
 document.querySelectorAll('[data-move]').forEach(b=>{
-  const d=b.dataset.move;
+
+  const direction=b.dataset.move;
 
   b.addEventListener('pointerdown',e=>{
     e.preventDefault();
-    held[d]=true;
+    held[direction]=true;
   });
 
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>{
-    b.addEventListener(ev,()=>held[d]=false);
+    b.addEventListener(ev,()=>held[direction]=false);
   });
+
 });
 
-// Poem opening
+
+/* ENLARGE POEM */
+
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
-const poemModal=document.getElementById('poemModal');
-const poemPanel=document.getElementById('poemPanel');
 
 renderer.domElement.addEventListener('click',e=>{
-  if(dragging||!entered)return;
+
+  if(dragging||movedPointer||!entered)return;
 
   pointer.x=(e.clientX/innerWidth)*2-1;
   pointer.y=-(e.clientY/innerHeight)*2+1;
+
   raycaster.setFromCamera(pointer,camera);
 
   if(raycaster.intersectObject(poem.image).length){
-    poemModal.style.display='flex';
-    poemPanel.scrollTop=0;
+    document.getElementById('poemModal').style.display='flex';
+  }
+
+  movedPointer=false;
+});
+
+document.getElementById('closePoem').addEventListener('click',()=>{
+  document.getElementById('poemModal').style.display='none';
+});
+
+document.getElementById('poemModal').addEventListener('click',e=>{
+  if(e.target.id==='poemModal'){
+    e.currentTarget.style.display='none';
   }
 });
 
-function closePoem(){
-  poemModal.style.display='none';
-}
 
-document.getElementById('closePoem').addEventListener('click',closePoem);
+/* MUSIC */
 
-poemModal.addEventListener('click',e=>{
-  if(e.target===poemModal)closePoem();
-});
-
-// Music starts when visitor enters.
 const song=document.getElementById('roomSong');
 song.loop=true;
 
 document.getElementById('enterButton').addEventListener('click',()=>{
+
   entered=true;
+
   document.getElementById('enter').style.display='none';
 
   song.play().catch(()=>{
     document.getElementById('hint').textContent=
-      'Your browser blocked playback. Please check your sound settings.';
+      'Tap ENTER again to start the music if playback is blocked.';
   });
+
 });
 
-// Render loop
+
+/* ANIMATION */
+
 function animate(){
+
   requestAnimationFrame(animate);
+
   const dt=Math.min(clock.getDelta(),.05);
+
   if(entered)update(dt);
+
   renderer.render(scene,camera);
 }
+
 animate();
 
+
+/* RESIZE */
+
 addEventListener('resize',()=>{
+
   camera.aspect=innerWidth/innerHeight;
   camera.updateProjectionMatrix();
+
   renderer.setSize(innerWidth,innerHeight);
+
 });
 
 })();
 </script>
+
 </body>
 </html>
 
