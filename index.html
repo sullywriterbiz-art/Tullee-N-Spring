@@ -9,7 +9,7 @@
 *{box-sizing:border-box}
 html,body{
   margin:0;width:100%;height:100%;
-  overflow:hidden;background:#17120e;
+  overflow:hidden;background:#120e0a;
   font-family:Georgia,serif;
 }
 canvas{display:block;touch-action:none}
@@ -29,10 +29,10 @@ canvas{display:block;touch-action:none}
 #enter,#poemModal{
   position:fixed;inset:0;z-index:10;
   display:flex;align-items:center;justify-content:center;
-  background:#100d0bd9;padding:20px;
+  background:#0c0907e0;padding:20px;
 }
 #enterCard{
-  background:#292219;border:1px solid #b49a70;
+  background:#241d15;border:1px solid #b49a70;
   color:#f1e6d5;padding:35px;text-align:center;
   max-width:400px;
 }
@@ -108,7 +108,7 @@ button{
 /* SCENE */
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x18130e);
+scene.background=new THREE.Color(0x120e0a);
 
 const camera=new THREE.PerspectiveCamera(
   62,innerWidth/innerHeight,.1,100
@@ -121,7 +121,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=0.88;
+renderer.toneMappingExposure=0.72;
 renderer.shadowMap.enabled=true;
 document.body.appendChild(renderer.domElement);
 
@@ -191,29 +191,29 @@ panel(3.4,.8,.2,sideMat,0,6,6);
 /* DIMMER, WARMER LIGHTING */
 
 scene.add(new THREE.HemisphereLight(
-  0xffedda,0x463b2f,.38
+  0xffedda,0x3a3026,.22
 ));
 
 const mainLight=new THREE.DirectionalLight(
-  0xffe5c4,.35
+  0xffe5c4,.22
 );
 mainLight.position.set(-3,6,4);
 scene.add(mainLight);
 
 const roomLight=new THREE.PointLight(
-  0xffd9a6,10,17,2
+  0xffd9a6,5.5,17,2
 );
 roomLight.position.set(0,4.8,0);
 scene.add(roomLight);
 
 const photoLight=new THREE.PointLight(
-  0xffe5bd,20,10,2
+  0xffe5bd,13,10,2
 );
 photoLight.position.set(-2.5,4.8,-3.8);
 scene.add(photoLight);
 
 const poemLight=new THREE.PointLight(
-  0xffe5c4,9,8,2
+  0xffe5c4,6,8,2
 );
 poemLight.position.set(2.7,4.5,-3.5);
 scene.add(poemLight);
@@ -238,8 +238,8 @@ function framedImage(src,x,y,maxW,maxH){
   const image=new THREE.Mesh(
     new THREE.PlaneGeometry(1,1),imageMaterial.clone()
   );
-  image.position.z=.13;
-  image.renderOrder=2;
+  image.position.z=.16;
+  image.renderOrder=3;
   group.add(image);
 
   const mat=image.material;
@@ -276,7 +276,7 @@ function framedImage(src,x,y,maxW,maxH){
     bar(.10,h, w/2+.02,0);
     bar(.10,h,-w/2-.02,0);
 
-    image.position.z=.13;
+    image.position.z=.16;
   }
 
   new THREE.TextureLoader().load(
