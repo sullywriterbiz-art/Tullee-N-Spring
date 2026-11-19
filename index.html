@@ -335,6 +335,7 @@ let yaw=0;
 let pitch=0;
 let dragging=false;
 let movedPointer=false;
+let downX=0,downY=0;
 let lastX=0,lastY=0;
 let entered=false;
 
@@ -380,8 +381,8 @@ renderer.domElement.addEventListener('pointerdown',e=>{
 
   dragging=true;
   movedPointer=false;
-  lastX=e.clientX;
-  lastY=e.clientY;
+  downX=lastX=e.clientX;
+  downY=lastY=e.clientY;
   renderer.domElement.setPointerCapture(e.pointerId);
 });
 
@@ -391,7 +392,9 @@ renderer.domElement.addEventListener('pointermove',e=>{
   const dx=e.clientX-lastX;
   const dy=e.clientY-lastY;
 
-  if(Math.abs(dx)+Math.abs(dy)>2)movedPointer=true;
+  if(Math.hypot(e.clientX-downX,e.clientY-downY)>6){
+    movedPointer=true;
+  }
 
   yaw-=dx*.0018;
   pitch=THREE.MathUtils.clamp(
@@ -402,12 +405,16 @@ renderer.domElement.addEventListener('pointermove',e=>{
   lastY=e.clientY;
 });
 
-renderer.domElement.addEventListener('pointerup',()=>{
+function endDrag(e){
+  if(!dragging)return;
   dragging=false;
-});
-renderer.domElement.addEventListener('pointercancel',()=>{
-  dragging=false;
-});
+  if(e&&renderer.domElement.hasPointerCapture(e.pointerId)){
+    renderer.domElement.releasePointerCapture(e.pointerId);
+  }
+}
+
+renderer.domElement.addEventListener('pointerup',endDrag);
+renderer.domElement.addEventListener('pointercancel',endDrag);
 
 
 /* TOUCH BUTTONS */
@@ -430,10 +437,14 @@ document.querySelectorAll('[data-move]').forEach(b=>{
 
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
+const poemModal=document.getElementById('poemModal');
 
 renderer.domElement.addEventListener('click',e=>{
 
-  if(dragging||movedPointer||!entered)return;
+  if(movedPointer||!entered||poemModal.style.display==='flex'){
+    movedPointer=false;
+    return;
+  }
 
   pointer.x=e.clientX/innerWidth*2-1;
   pointer.y=-(e.clientY/innerHeight)*2+1;
@@ -441,19 +452,21 @@ renderer.domElement.addEventListener('click',e=>{
   raycaster.setFromCamera(pointer,camera);
 
   if(raycaster.intersectObject(poem.image).length){
-    document.getElementById('poemModal').style.display='flex';
+    e.stopPropagation();
+    poemModal.style.display='flex';
   }
 
   movedPointer=false;
 });
 
-document.getElementById('closePoem').addEventListener('click',()=>{
-  document.getElementById('poemModal').style.display='none';
+document.getElementById('closePoem').addEventListener('click',e=>{
+  e.stopPropagation();
+  poemModal.style.display='none';
 });
 
-document.getElementById('poemModal').addEventListener('click',e=>{
-  if(e.target.id==='poemModal'){
-    e.currentTarget.style.display='none';
+poemModal.addEventListener('click',e=>{
+  if(e.target===poemModal){
+    poemModal.style.display='none';
   }
 });
 
@@ -498,6 +511,7 @@ addEventListener('resize',()=>{
 </script>
 </body>
 </html>
+
 
 
 
