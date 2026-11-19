@@ -2,637 +2,491 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Tullee & Spring — HorseHills</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tullee and Spring — HorseHills</title>
+
 <style>
-:root { color-scheme: dark; }
-* { box-sizing: border-box; }
-html, body {
-  margin:0; width:100%; height:100%; overflow:hidden;
-  background:#11140f; font-family:Georgia,serif;
+*{box-sizing:border-box}
+html,body{
+  margin:0;width:100%;height:100%;
+  overflow:hidden;background:#17120e;
+  font-family:Georgia,serif;
 }
-canvas { display:block; width:100%; height:100%; touch-action:none; }
+canvas{display:block;touch-action:none}
 
-#hud {
-  position:fixed; left:16px; top:14px; z-index:5; color:#f4ead6;
-  background:rgba(12,17,13,.62); border:1px solid rgba(222,205,165,.22);
-  border-radius:10px; padding:10px 13px;
-  max-width:min(360px,calc(100vw - 32px));
-  backdrop-filter:blur(7px); pointer-events:none;
+#heading{
+  position:fixed;top:18px;left:22px;z-index:5;
+  color:#eee4d3;font:13px Arial,sans-serif;
+  letter-spacing:2px;text-shadow:0 2px 5px #000;
 }
-#hud strong { display:block; font-size:16px; font-weight:normal; letter-spacing:.06em; }
-#hud span { display:block; margin-top:4px; font:12px/1.4 system-ui,sans-serif; color:#d5cfbf; }
-
-#prompt {
-  position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-  z-index:6; color:#f7efdf; background:rgba(10,14,11,.78);
-  border:1px solid rgba(231,213,171,.3); border-radius:24px;
-  padding:9px 15px; font:13px system-ui,sans-serif;
-  text-align:center; max-width:calc(100vw - 24px); pointer-events:none;
+#hint{
+  position:fixed;bottom:18px;left:50%;
+  transform:translateX(-50%);z-index:5;
+  color:#eee4d3;background:#211c17cc;
+  padding:10px 16px;border-radius:20px;
+  font:12px Arial,sans-serif;text-align:center;
 }
-#controls {
-  position:fixed; right:14px; bottom:14px; z-index:7;
-  display:grid; grid-template-columns:48px 48px 48px;
-  grid-template-rows:44px 44px; gap:5px; touch-action:none;
+#enter,#poemModal{
+  position:fixed;inset:0;z-index:10;
+  display:flex;align-items:center;justify-content:center;
+  background:#100d0bd9;padding:20px;
 }
-#controls button {
-  border:1px solid rgba(240,225,190,.35); border-radius:9px;
-  color:#f8f0df; background:rgba(12,18,14,.68);
-  font:17px system-ui,sans-serif;
-  -webkit-tap-highlight-color:transparent; touch-action:none;
+#enterCard{
+  background:#292219;border:1px solid #b49a70;
+  color:#f1e6d5;padding:35px;text-align:center;
+  max-width:400px;
 }
-#controls button:active { background:rgba(154,129,83,.75); }
-#up { grid-column:2; grid-row:1; }
-#left { grid-column:1; grid-row:2; }
-#down { grid-column:2; grid-row:2; }
-#right { grid-column:3; grid-row:2; }
-
-#look {
-  position:fixed; left:14px; bottom:14px; z-index:5;
-  color:#d9d2c2; font:11px/1.4 system-ui,sans-serif;
-  background:rgba(12,18,14,.55); padding:8px 10px;
-  border-radius:8px; max-width:190px; pointer-events:none;
+#enterCard h1{font-weight:normal;letter-spacing:2px}
+button{
+  background:#665039;color:#fff1dc;
+  border:1px solid #c2a77c;border-radius:22px;
+  padding:12px 22px;cursor:pointer;font-size:14px;
 }
-#poemModal {
-  display:none; position:fixed; inset:0; z-index:20;
-  background:rgba(4,7,5,.86); align-items:center;
-  justify-content:center; padding:20px;
+#poemModal{
+  display:none;z-index:20;flex-direction:column;
+  justify-content:flex-start;overflow-y:auto;
+  background:#080706f5;
 }
-#poemPanel {
-  position:relative; max-width:min(760px,94vw);
-  max-height:88vh; overflow:auto; padding:18px;
-  background:#e9e2d3; border-radius:8px;
-  box-shadow:0 18px 70px #000;
+#closePoem{position:sticky;top:0;align-self:flex-end;flex-shrink:0}
+#poemImage{
+  display:block;width:auto;max-width:94vw;height:auto;
+  margin:10px auto 25px;
 }
-#poemImage {
-  display:block; max-width:100%; max-height:78vh;
-  object-fit:contain; margin:auto;
+#touchControls{
+  display:none;position:fixed;bottom:60px;left:15px;
+  z-index:6;gap:8px;
 }
-#closePoem {
-  position:fixed; top:14px; right:16px; z-index:22;
-  border:1px solid #c8bda7; color:#f6eedf;
-  background:#252b24; border-radius:20px;
-  padding:9px 15px; font:14px system-ui,sans-serif;
+#touchControls button{
+  width:48px;height:48px;padding:0;border-radius:50%;
 }
-
-#startScreen {
-  position:fixed; inset:0; z-index:15;
-  display:flex; align-items:center; justify-content:center;
-  padding:22px;
-  background:linear-gradient(rgba(8,13,10,.38),rgba(8,13,10,.82));
-}
-#startCard {
-  max-width:510px; text-align:center; color:#f4ead6;
-  padding:28px 26px; background:rgba(12,17,13,.76);
-  border:1px solid rgba(229,211,171,.3);
-  border-radius:12px; backdrop-filter:blur(8px);
-}
-#startCard h1 {
-  margin:0 0 10px; font-weight:normal;
-  font-size:clamp(26px,5vw,40px); letter-spacing:.04em;
-}
-
-/* Before entering, show ONLY the title and Enter button. */
-body:not(.started) #hud,
-body:not(.started) #look,
-body:not(.started) #prompt,
-body:not(.started) #controls {
-  display:none;
-}
-
-#startButton {
-  border:1px solid #c5ae7e; border-radius:24px;
-  background:#8d7952; color:#fff8e8;
-  padding:11px 22px; font:15px Georgia,serif;
-}
-#error {
-  display:none; position:fixed; inset:0; z-index:30;
-  padding:24px; color:white; background:#241d18;
-  font:15px/1.5 system-ui,sans-serif;
-}
-@media (max-width:600px) {
-  #look { bottom:116px; max-width:145px; }
-  #controls { right:12px; bottom:12px; }
-  #hud { max-width:230px; }
+@media(pointer:coarse){
+  #touchControls{display:flex}
+  #hint{
+    left:auto;right:10px;transform:none;
+    max-width:48vw;
+  }
 }
 </style>
 </head>
+
 <body>
 
-<div id="hud">
-  <strong>TULLEE & SPRING</strong>
-  <span id="status"></span>
+<div id="heading">TULLEE AND SPRING · HORSEHILLS</div>
+<div id="hint">WASD or arrows to walk · Drag to look · Click poem to enlarge</div>
+
+<div id="touchControls">
+  <button data-move="forward">↑</button>
+  <button data-move="back">↓</button>
+  <button data-move="left">←</button>
+  <button data-move="right">→</button>
 </div>
 
-<div id="look">
-  Drag to look. Walk with WASD / arrows; turn with J/L and look up/down with I/K. Touch: drag + arrows.
-</div>
-
-<div id="prompt">Follow the trail into the forest</div>
-
-<div id="controls" aria-label="Movement controls">
-  <button id="up" aria-label="Forward">↑</button>
-  <button id="left" aria-label="Left">←</button>
-  <button id="down" aria-label="Back">↓</button>
-  <button id="right" aria-label="Right">→</button>
-</div>
-
-<div id="startScreen">
-  <div id="startCard">
-    <h1>Tullee & Spring</h1>
-    <button id="startButton">Enter the forest</button>
+<div id="enter">
+  <div id="enterCard">
+    <h1>Tullee and Spring</h1>
+    <p>HorseHills</p>
+    <button id="enterButton">ENTER ROOM</button>
   </div>
 </div>
 
 <div id="poemModal">
-  <button id="closePoem">Close poem ✕</button>
-  <div id="poemPanel">
-    <img id="poemImage" alt="Poem">
-  </div>
+  <button id="closePoem">Close poem</button>
+  <img id="poemImage"
+       src="assets/poems/HorseHills.png"
+       alt="HorseHills poem">
 </div>
 
-<div id="error"></div>
+<audio id="roomSong" src="assets/music/horse%20hills.mp3"
+       preload="auto" loop></audio>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
 <script>
-(() => {
+(()=>{
 'use strict';
 
-const errorBox = document.getElementById('error');
-if (!window.THREE) {
-  errorBox.style.display='block';
-  errorBox.textContent='The 3D library did not load. Check your internet connection and reload this preview.';
-  return;
-}
+/* SCENE */
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111810);
-scene.fog = new THREE.FogExp2(0x111810, 0.0125);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x18130e);
 
-const camera = new THREE.PerspectiveCamera(67, innerWidth/innerHeight, 0.1, 260);
-camera.position.set(0,1.7,8);
+const camera=new THREE.PerspectiveCamera(
+  62,innerWidth/innerHeight,.1,100
+);
+camera.position.set(0,1.65,4.5);
+camera.rotation.order='YXZ';
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
+const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=0.88;
+renderer.shadowMap.enabled=true;
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xc9d8c7,0x30291d,0.65));
 
-const moon = new THREE.DirectionalLight(0xd5d8c7,0.65);
-moon.position.set(-18,28,12);
-moon.castShadow=true;
-moon.shadow.mapSize.set(2048,2048);
-moon.shadow.camera.left=-45;
-moon.shadow.camera.right=45;
-moon.shadow.camera.top=45;
-moon.shadow.camera.bottom=-45;
-scene.add(moon);
+/* ROOM: 14 x 12 FEET */
 
-const mats = {
-  bark: new THREE.MeshStandardMaterial({color:0x40352a, roughness:1}),
-  bark2: new THREE.MeshStandardMaterial({color:0x594737, roughness:1}),
-  pine: new THREE.MeshStandardMaterial({color:0x203b2b, roughness:1}),
-  pine2: new THREE.MeshStandardMaterial({color:0x2b4934, roughness:1}),
-  floor: new THREE.MeshStandardMaterial({color:0x594631, roughness:.78}),
-  path: new THREE.MeshStandardMaterial({color:0x786448, roughness:1}),
-  stone: new THREE.MeshStandardMaterial({color:0x56564b, roughness:1}),
-  moss: new THREE.MeshStandardMaterial({color:0x33402b, roughness:1}),
-  frame: new THREE.MeshStandardMaterial({color:0x443728, roughness:.82}),
-  warm: new THREE.MeshStandardMaterial({color:0xc7a46c, emissive:0x4b2e10, emissiveIntensity:.25})
-};
+const room=new THREE.Group();
+scene.add(room);
 
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(220,220), mats.floor);
-floor.rotation.x=-Math.PI/2;
-floor.position.y=-.08;
-floor.receiveShadow=true;
-scene.add(floor);
+const wallMat=new THREE.MeshStandardMaterial({
+  color:0x827767,roughness:.95
+});
+const sideMat=new THREE.MeshStandardMaterial({
+  color:0x665b4c,roughness:.95
+});
+const ceilingMat=new THREE.MeshStandardMaterial({
+  color:0x9b907e,roughness:1
+});
 
-// Winding forest trail
-const centers = [
-  [0,0,5], [2,0,-13], [9,0,-31], [4,0,-51], [-8,0,-72],
-  [-12,0,-94], [0,0,-116], [12,0,-138], [8,0,-160],
-  [-6,0,-182], [-13,0,-204], [0,0,-226], [10,0,-248]
-];
-
-function curveAt(t) {
-  const pts=centers.map(p=>new THREE.Vector3(p[0],0,p[2]));
-  const c=new THREE.CatmullRomCurve3(pts);
-  return c.getPointAt(THREE.MathUtils.clamp(t,0,1));
+function panel(w,h,d,mat,x,y,z){
+  const m=new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),mat
+  );
+  m.position.set(x,y,z);
+  room.add(m);
+  return m;
 }
 
-const trailPts=[];
-for(let i=0;i<=500;i++){
-  const p=curveAt(i/500);
-  trailPts.push(new THREE.Vector3(p.x,.005,p.z));
-}
-const trailLine=new THREE.Mesh(
-  new THREE.TubeGeometry(new THREE.CatmullRomCurve3(trailPts),500,2.5,8,false),
-  mats.path
+
+/* HARDWOOD FLOOR - PRESERVED */
+
+const floorTexture=new THREE.TextureLoader().load(
+  "https://threejs.org/examples/textures/hardwood2_diffuse.jpg"
 );
-trailLine.receiveShadow=true;
-scene.add(trailLine);
+floorTexture.colorSpace=THREE.SRGBColorSpace;
+floorTexture.wrapS=THREE.RepeatWrapping;
+floorTexture.wrapT=THREE.RepeatWrapping;
+floorTexture.repeat.set(5,4);
 
-// Ground cover
-for(let i=0;i<180;i++){
-  const t=Math.random();
-  const p=curveAt(t);
-  const side=(Math.random()<.5?-1:1)*(3.5+Math.random()*9);
-  const g=new THREE.Mesh(
-    new THREE.DodecahedronGeometry(.25+Math.random()*.45,0),
-    Math.random()<.55?mats.moss:mats.stone
-  );
-  g.position.set(p.x+side,.03,p.z+(Math.random()-.5)*5);
-  g.scale.y=.25+Math.random()*.35;
-  g.castShadow=true;
-  scene.add(g);
-}
+const floorMat=new THREE.MeshStandardMaterial({
+  map:floorTexture,roughness:.62
+});
 
-function makeTree(x,z,scale=1,variant=0) {
+const floor=new THREE.Mesh(
+  new THREE.PlaneGeometry(14,12),floorMat
+);
+floor.rotation.x=-Math.PI/2;
+floor.position.y=0;
+floor.receiveShadow=true;
+room.add(floor);
+
+
+/* WALLS AND CEILING */
+
+panel(14,.2,12,ceilingMat,0,6.5,0);
+panel(14,6.4,.2,wallMat,0,3.2,-6);
+panel(.2,6.4,12,sideMat,-7,3.2,0);
+panel(.2,6.4,12,sideMat,7,3.2,0);
+
+/* Open entrance */
+
+panel(5.3,6.4,.2,sideMat,-4.35,3.2,6);
+panel(5.3,6.4,.2,sideMat,4.35,3.2,6);
+panel(3.4,.8,.2,sideMat,0,6,6);
+
+
+/* DIMMER, WARMER LIGHTING */
+
+scene.add(new THREE.HemisphereLight(
+  0xffedda,0x463b2f,.38
+));
+
+const mainLight=new THREE.DirectionalLight(
+  0xffe5c4,.35
+);
+mainLight.position.set(-3,6,4);
+scene.add(mainLight);
+
+const roomLight=new THREE.PointLight(
+  0xffd9a6,10,17,2
+);
+roomLight.position.set(0,4.8,0);
+scene.add(roomLight);
+
+const photoLight=new THREE.PointLight(
+  0xffe5bd,20,10,2
+);
+photoLight.position.set(-2.5,4.8,-3.8);
+scene.add(photoLight);
+
+const poemLight=new THREE.PointLight(
+  0xffe5c4,9,8,2
+);
+poemLight.position.set(2.7,4.5,-3.5);
+scene.add(poemLight);
+
+
+/* IMAGE FRAMES */
+
+const frameMat=new THREE.MeshStandardMaterial({
+  color:0x493723,roughness:.5
+});
+
+const imageMaterial=new THREE.MeshBasicMaterial({
+  color:0xffffff,side:THREE.DoubleSide,transparent:true
+});
+
+function framedImage(src,x,y,maxW,maxH){
+
   const group=new THREE.Group();
-  group.position.set(x,0,z);
-  group.scale.setScalar(scale);
+  group.position.set(x,y,-5.78);
+  room.add(group);
 
-  const trunk=new THREE.Mesh(
-    new THREE.CylinderGeometry(.28,.48,7.8,7),
-    variant?mats.bark2:mats.bark
+  const image=new THREE.Mesh(
+    new THREE.PlaneGeometry(1,1),imageMaterial.clone()
   );
-  trunk.position.y=3.9;
-  trunk.castShadow=true;
-  trunk.receiveShadow=true;
-  group.add(trunk);
+  image.position.z=.13;
+  image.renderOrder=2;
+  group.add(image);
 
-  for(let j=0;j<3;j++){
-    const h=3.4-j*.55;
-    const r=2.25-j*.42;
-    const crown=new THREE.Mesh(
-      new THREE.ConeGeometry(r,h,7),
-      j===1?mats.pine2:mats.pine
-    );
-    crown.position.y=6.1+j*1.35;
-    crown.castShadow=true;
-    group.add(crown);
-  }
-  scene.add(group);
-  return group;
-}
+  const mat=image.material;
+  let frameParts=[];
 
-// Forest trees
-for(let i=0;i<105;i++){
-  const t=.015+Math.random()*.97;
-  const p=curveAt(t);
-  const side=(Math.random()<.5?-1:1)*(5.5+Math.random()*10);
-  const zoff=(Math.random()-.5)*8;
-  makeTree(p.x+side,p.z+zoff,.72+Math.random()*.72,Math.random()<.35?1:0);
-}
+  function resizeFrame(w,h){
 
-for(let i=0;i<centers.length-1;i++){
-  const p=curveAt((i+.45)/(centers.length-1));
-  makeTree(p.x-5.4,p.z+2,.85,1);
-  makeTree(p.x+5.6,p.z-2,.9,0);
-}
+    image.geometry.dispose();
+    image.geometry=new THREE.PlaneGeometry(w,h);
 
-// The twelve photo, poem, and song installations
-const installations = [
- {title:'HorseHills',photo:'HorseHills.jpg',poem:'HorseHills.png',song:'horse hills.mp3',t:.075,side:-1},
- {title:'Daughters Four',photo:'Daughters Four.jpg',poem:'Daughters Four.png',song:'Daughters Four.mp3',t:.15,side:1},
- {title:'Ode to Tullee',photo:'Ode to Tullee.jpg',poem:'Ode to Tullee.png',song:'Ode to Tullee.mp3',t:.235,side:-1},
- {title:'Fall Loves Death',photo:'Fall Loves Death.jpg',poem:'Fall Loves Death.png',song:'fall loves death.mp3',t:.32,side:1},
- {title:'Order Called',photo:'Order.jpg',poem:'Order Called.png',song:'Order.mp3',t:.405,side:-1},
- {title:'Regrets',photo:'Regrets.jpg',poem:'Regrets.png',song:'Regrets.mp3',t:.49,side:1},
- {title:'Apology',photo:'Apology.jpg',poem:'Apology.png',song:'Apology.mp3',t:.575,side:-1},
- {title:'Hawk',photo:'Hawk.jpg',poem:'Hawk.png',song:'Hawk.mp3',t:.66,side:1},
- {title:'Lady Bugs',photo:'Lady Bug.jpg',poem:'Lady Bugs.png',song:'Lady Bugs.mp3',t:.745,side:-1},
- {title:'Two Bucks',photo:'Two Bucks.jpg',poem:'Two Bucks.png',song:'Two Bucks.mp3',t:.83,side:1},
- {title:'Messy Ending',photo:'Messy Ending.jpg',poem:'Messy Endings.png',song:'Messy Ending.mp3',t:.91,side:-1},
- {title:'Above',photo:'Above.jpg',poem:'Above.png',song:'Above.mp3',t:.985,side:1}
-];
-
-const cover = {photo:'TheTrail.jpg'};
-let activeIndex=-1, unlocked=0, currentSong=null, started=false, poemOpen=false;
-const displays=[];
-
-function imagePlane(url,w,h,materialFallback) {
-  const mat=new THREE.MeshBasicMaterial({color:0x5d594d});
-  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
-  mesh.userData.url=url;
-
-  new THREE.TextureLoader().load('assets/photos/'+encodeURIComponent(url), tex=>{
-    tex.colorSpace=THREE.SRGBColorSpace;
-    const im=tex.image;
-    const ar=im.width/im.height;
-    const maxW=4.9,maxH=3.5;
-    let ww=maxW,hh=maxW/ar;
-    if(hh>maxH){hh=maxH;ww=maxH*ar;}
-    mesh.geometry.dispose();
-    mesh.geometry=new THREE.PlaneGeometry(ww,hh);
-    mesh.material=new THREE.MeshBasicMaterial({
-      map:tex, side:THREE.DoubleSide, toneMapped:false
+    frameParts.forEach(p=>{
+      group.remove(p);
+      p.geometry.dispose();
     });
-    mesh.userData.loaded=true;
-  },undefined,()=>{});
-  return mesh;
-}
+    frameParts=[];
 
-function makeDisplay(item,index) {
-  const p=curveAt(item.t);
-  const tangent=curveAt(Math.min(1,item.t+.002))
-    .sub(curveAt(Math.max(0,item.t-.002))).normalize();
-  const right=new THREE.Vector3(-tangent.z,0,tangent.x);
-  const pos=p.clone().addScaledVector(right,item.side*4.3);
+    const backing=new THREE.Mesh(
+      new THREE.BoxGeometry(w+.28,h+.28,.16),frameMat
+    );
+    group.add(backing);
+    frameParts.push(backing);
 
-  const group=new THREE.Group();
-  group.position.set(pos.x,0,pos.z);
-  const toward=p.clone().sub(pos);
-  group.rotation.y=Math.atan2(toward.x,toward.z);
+    function bar(bw,bh,bx,by){
+      const p=new THREE.Mesh(
+        new THREE.BoxGeometry(bw,bh,.12),frameMat
+      );
+      p.position.set(bx,by,.045);
+      group.add(p);
+      frameParts.push(p);
+    }
 
-  const back=new THREE.Mesh(new THREE.BoxGeometry(5.5,4.0,.28),mats.frame);
-  back.position.set(0,2.35,0);
-  back.castShadow=true;
-  group.add(back);
+    bar(w+.12,.10,0,h/2+.02);
+    bar(w+.12,.10,0,-h/2-.02);
+    bar(.10,h, w/2+.02,0);
+    bar(.10,h,-w/2-.02,0);
 
-  const photo=imagePlane(item.photo,4.3,3.0);
-  photo.position.set(0,2.38,.16);
-  group.add(photo);
+    image.position.z=.13;
+  }
 
-  const plaque=new THREE.Mesh(new THREE.BoxGeometry(2.2,.28,.12),mats.frame);
-  plaque.position.set(0,.42,.18);
-  group.add(plaque);
+  new THREE.TextureLoader().load(
+    src,
+    texture=>{
+      texture.colorSpace=THREE.SRGBColorSpace;
+      mat.map=texture;
+      mat.needsUpdate=true;
 
-  const light=new THREE.PointLight(index>=10?0xffd99b:0xe8d2a4,0,12,2);
-  light.position.set(0,4.4,1.3);
-  group.add(light);
+      const aspect=texture.image.width/texture.image.height;
+      let w=maxW;
+      let h=w/aspect;
 
-  const poemButton=new THREE.Mesh(new THREE.BoxGeometry(1.55,.44,.2),mats.warm);
-  poemButton.position.set(0,.95,.35);
-  group.add(poemButton);
+      if(h>maxH){
+        h=maxH;
+        w=h*aspect;
+      }
 
-  const labelCanvas=document.createElement('canvas');
-  labelCanvas.width=512;
-  labelCanvas.height=96;
-  const ctx=labelCanvas.getContext('2d');
-  ctx.clearRect(0,0,512,96);
-  ctx.fillStyle='#f4ead6';
-  ctx.font='34px Georgia';
-  ctx.textAlign='center';
-  ctx.fillText(item.title,256,60);
-
-  const labelTex=new THREE.CanvasTexture(labelCanvas);
-  const label=new THREE.Mesh(
-    new THREE.PlaneGeometry(3.5,.66),
-    new THREE.MeshBasicMaterial({map:labelTex,transparent:true,depthWrite:false})
+      resizeFrame(w,h);
+      console.log("Loaded image:",src);
+    },
+    undefined,
+    error=>{
+      console.error("Image failed to load:",src,error);
+    }
   );
-  label.position.set(0,4.25,.2);
-  group.add(label);
 
-  group.visible=false;
-  scene.add(group);
-  displays.push({group,light,photo,item,index,center:pos,poemButton});
+  return {group,image};
 }
 
-installations.forEach(makeDisplay);
 
-// Separate opening photograph
-const coverGroup=new THREE.Group();
-coverGroup.position.set(-3.4,0,1.4);
-coverGroup.rotation.y=-.45;
+/* HORSEHILLS PHOTO */
 
-const coverFrame=new THREE.Mesh(new THREE.BoxGeometry(4.8,3.45,.25),mats.frame);
-coverFrame.position.y=2.3;
-coverGroup.add(coverFrame);
+const photo=framedImage(
+  "assets/photos/HorseHills.jpg",
+  -2.55,3.1,4.7,3.4
+);
 
-const coverPhoto=imagePlane(cover.photo,4.3,3.0);
-coverPhoto.position.set(0,2.32,.16);
-coverGroup.add(coverPhoto);
 
-const coverLight=new THREE.PointLight(0xffdba4,1.0,9);
-coverLight.position.set(0,4.1,1);
-coverGroup.add(coverLight);
-scene.add(coverGroup);
+/* HORSEHILLS POEM */
 
-// Low amber markers along the trail
-for(let i=0;i<centers.length;i++){
-  const p=curveAt(i/(centers.length-1));
-  const marker=new THREE.PointLight(0x9e8a5b,.18,5,2);
-  marker.position.set(p.x,.35,p.z);
-  scene.add(marker);
+const poem=framedImage(
+  "assets/poems/HorseHills.png",
+  2.65,3.1,3.0,4.2
+);
 
-  const pebble=new THREE.Mesh(new THREE.SphereGeometry(.13,8,6),mats.warm);
-  pebble.position.set(p.x,.18,p.z);
-  scene.add(pebble);
-}
+
+/* MOVEMENT */
 
 const keys={};
+const held={
+  forward:false,back:false,left:false,right:false
+};
+
+let yaw=0;
+let pitch=0;
+let dragging=false;
+let movedPointer=false;
+let lastX=0,lastY=0;
+let entered=false;
+
+const clock=new THREE.Clock();
+
+function update(dt){
+
+  const turn=.85*dt;
+  const speed=1.4*dt;
+
+  if(keys.ArrowLeft||keys.KeyA||held.left)yaw+=turn;
+  if(keys.ArrowRight||keys.KeyD||held.right)yaw-=turn;
+
+  let forward=0;
+  if(keys.KeyW||keys.ArrowUp||held.forward)forward+=speed;
+  if(keys.KeyS||keys.ArrowDown||held.back)forward-=speed;
+
+  camera.position.x-=Math.sin(yaw)*forward;
+  camera.position.z-=Math.cos(yaw)*forward;
+
+  camera.position.x=THREE.MathUtils.clamp(
+    camera.position.x,-5.8,5.8
+  );
+  camera.position.z=THREE.MathUtils.clamp(
+    camera.position.z,-4.8,4.8
+  );
+
+  camera.rotation.set(pitch,yaw,0,'YXZ');
+}
 
 addEventListener('keydown',e=>{
-  keys[e.key.toLowerCase()]=true;
-  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+  keys[e.code]=true;
+  if(e.code.startsWith('Arrow'))e.preventDefault();
 });
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+addEventListener('keyup',e=>keys[e.code]=false);
 
-let yaw=0,pitch=0,dragging=false,lastX=0,lastY=0;
+
+/* LOOK AROUND (MOUSE + TOUCH) */
 
 renderer.domElement.addEventListener('pointerdown',e=>{
+  if(!entered)return;
+  if(e.target.closest('#touchControls'))return;
+
   dragging=true;
+  movedPointer=false;
   lastX=e.clientX;
   lastY=e.clientY;
   renderer.domElement.setPointerCapture(e.pointerId);
 });
 
 renderer.domElement.addEventListener('pointermove',e=>{
-  if(!dragging||poemOpen)return;
+  if(!dragging)return;
+
   const dx=e.clientX-lastX;
   const dy=e.clientY-lastY;
+
+  if(Math.abs(dx)+Math.abs(dy)>2)movedPointer=true;
+
+  yaw-=dx*.0018;
+  pitch=THREE.MathUtils.clamp(
+    pitch+dy*.0015,-.65,.65
+  );
+
   lastX=e.clientX;
   lastY=e.clientY;
-  yaw-=dx*.004;
-  pitch=THREE.MathUtils.clamp(pitch-dy*.003,-.65,.65);
 });
 
-renderer.domElement.addEventListener('pointerup',()=>dragging=false);
-renderer.domElement.addEventListener('pointercancel',()=>dragging=false);
+renderer.domElement.addEventListener('pointerup',()=>{
+  dragging=false;
+});
+renderer.domElement.addEventListener('pointercancel',()=>{
+  dragging=false;
+});
 
-const moveState={forward:false,back:false,left:false,right:false};
 
-function bindButton(id,key){
-  const b=document.getElementById(id);
-  const on=e=>{e.preventDefault();moveState[key]=true;};
-  const off=e=>{e.preventDefault();moveState[key]=false;};
-  b.addEventListener('pointerdown',on);
-  b.addEventListener('pointerup',off);
-  b.addEventListener('pointerleave',off);
-  b.addEventListener('pointercancel',off);
-}
+/* TOUCH BUTTONS */
 
-bindButton('up','forward');
-bindButton('down','back');
-bindButton('left','left');
-bindButton('right','right');
+document.querySelectorAll('[data-move]').forEach(b=>{
+  const direction=b.dataset.move;
 
-const prompt=document.getElementById('prompt');
-const status=document.getElementById('status');
-
-const audio=new Audio();
-audio.preload='none';
-audio.volume=.72;
-audio.addEventListener('ended',()=>{currentSong=null;});
-
-function stopSong(){
-  audio.pause();
-  audio.currentTime=0;
-  currentSong=null;
-}
-
-function startSong(item){
-  if(currentSong===item.song)return;
-  stopSong();
-  currentSong=item.song;
-  audio.src='assets/music/'+encodeURIComponent(item.song).replace(/%2F/g,'/');
-  audio.play().catch(()=>{
-    prompt.textContent='Tap or click to allow the music to play';
+  b.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    held[direction]=true;
   });
-}
 
-function openPoem(d){
-  poemOpen=true;
-  document.getElementById('poemImage').src=
-    'assets/poems/'+encodeURIComponent(d.item.poem).replace(/%2F/g,'/');
-  document.getElementById('poemModal').style.display='flex';
-  stopSong();
-}
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>{
+    b.addEventListener(ev,()=>held[direction]=false);
+  });
+});
 
-function closePoem(){
+
+/* CLICK POEM TO ENLARGE */
+
+const raycaster=new THREE.Raycaster();
+const pointer=new THREE.Vector2();
+
+renderer.domElement.addEventListener('click',e=>{
+
+  if(dragging||movedPointer||!entered)return;
+
+  pointer.x=e.clientX/innerWidth*2-1;
+  pointer.y=-(e.clientY/innerHeight)*2+1;
+
+  raycaster.setFromCamera(pointer,camera);
+
+  if(raycaster.intersectObject(poem.image).length){
+    document.getElementById('poemModal').style.display='flex';
+  }
+
+  movedPointer=false;
+});
+
+document.getElementById('closePoem').addEventListener('click',()=>{
   document.getElementById('poemModal').style.display='none';
-  poemOpen=false;
-  const d=displays[activeIndex];
-  if(d) startSong(d.item);
-}
+});
 
-document.getElementById('closePoem').addEventListener('click',closePoem);
 document.getElementById('poemModal').addEventListener('click',e=>{
-  if(e.target.id==='poemModal')closePoem();
+  if(e.target.id==='poemModal'){
+    e.currentTarget.style.display='none';
+  }
 });
 
-document.getElementById('startButton').addEventListener('click',()=>{
-  started=true;
-  document.body.classList.add('started');
-  document.getElementById('startScreen').style.display='none';
-  audio.play().catch(()=>{});
-  audio.pause();
-  audio.currentTime=0;
+
+/* MUSIC - PRESERVED */
+
+const song=document.getElementById('roomSong');
+song.loop=true;
+
+document.getElementById('enterButton').addEventListener('click',()=>{
+
+  entered=true;
+  document.getElementById('enter').style.display='none';
+
+  song.play().catch(()=>{
+    document.getElementById('hint').textContent=
+      'Tap ENTER again to start the music if playback is blocked.';
+  });
 });
 
-function distanceXZ(a,b){
-  return Math.hypot(a.x-b.x,a.z-b.z);
-}
 
-const clock=new THREE.Clock();
-let lastPrompt='';
+/* ANIMATION */
 
 function animate(){
   requestAnimationFrame(animate);
-  const dt=Math.min(clock.getDelta(),.04);
-
-  if(started&&!poemOpen){
-    const forward=keys.w||keys.arrowup||moveState.forward;
-    const back=keys.s||keys.arrowdown||moveState.back;
-
-    if(keys.j) yaw += 1.35*dt;
-    if(keys.l) yaw -= 1.35*dt;
-    if(keys.i) pitch = THREE.MathUtils.clamp(pitch + 1.0*dt,-.65,.65);
-    if(keys.k) pitch = THREE.MathUtils.clamp(pitch - 1.0*dt,-.65,.65);
-
-    const left=keys.a||keys.arrowleft||moveState.left;
-    const right=keys.d||keys.arrowright||moveState.right;
-    const speed=8.2*dt;
-
-    const dir=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
-    const strafe=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
-
-    if(forward)camera.position.addScaledVector(dir,speed);
-    if(back)camera.position.addScaledVector(dir,-speed);
-    if(left)camera.position.addScaledVector(strafe,-speed);
-    if(right)camera.position.addScaledVector(strafe,speed);
-
-    camera.position.y=1.7;
-    camera.rotation.order='YXZ';
-    camera.rotation.y=yaw;
-    camera.rotation.x=pitch;
-  }
-
-  const player=camera.position;
-  let nearest=null,nearestDist=999;
-
-  for(let i=0;i<displays.length;i++){
-    const d=displays[i];
-    const allowed=i<=unlocked;
-    const dist=distanceXZ(player,d.center);
-
-    d.group.visible=allowed && dist<9;
-    const reveal=allowed?THREE.MathUtils.clamp(1-dist/9,0,1):0;
-    d.light.intensity=reveal*(i>=10?1.9:1.45);
-
-    if(allowed&&dist<nearestDist){
-      nearest=d;
-      nearestDist=dist;
-    }
-  }
-
-  if(started&&!poemOpen){
-    if(nearest&&nearestDist<5.6){
-      activeIndex=nearest.index;
-
-      if(nearestDist<4.2){
-        if(unlocked===nearest.index){
-          unlocked=Math.min(11,unlocked+1);
-        }
-        startSong(nearest.item);
-
-        const msg=nearest.item.title+' · Click the small plaque to read the poem';
-        if(msg!==lastPrompt){
-          prompt.textContent=msg;
-          lastPrompt=msg;
-        }
-        status.textContent='Installation '+(nearest.index+1)+' of 12 · '+nearest.item.title;
-      }
-    } else {
-      activeIndex=-1;
-      const msg='Follow the winding trail. The next photograph will appear as you approach.';
-      if(msg!==lastPrompt){
-        prompt.textContent=msg;
-        lastPrompt=msg;
-      }
-    }
-  }
-
+  const dt=Math.min(clock.getDelta(),.05);
+  if(entered)update(dt);
   renderer.render(scene,camera);
 }
+animate();
 
-const raycaster=new THREE.Raycaster();
-const mouse=new THREE.Vector2();
 
-renderer.domElement.addEventListener('click',e=>{
-  if(!started||poemOpen)return;
-
-  mouse.x=(e.clientX/innerWidth)*2-1;
-  mouse.y=-(e.clientY/innerHeight)*2+1;
-  raycaster.setFromCamera(mouse,camera);
-
-  const hits=raycaster.intersectObjects(
-    displays.filter(d=>d.group.visible).map(d=>d.poemButton),
-    false
-  );
-
-  if(hits.length){
-    const d=displays.find(x=>x.poemButton===hits[0].object);
-    if(d&&d.index<=unlocked)openPoem(d);
-  }
-});
+/* RESIZE */
 
 addEventListener('resize',()=>{
   camera.aspect=innerWidth/innerHeight;
@@ -640,9 +494,9 @@ addEventListener('resize',()=>{
   renderer.setSize(innerWidth,innerHeight);
 });
 
-animate();
 })();
 </script>
 </body>
 </html>
+
 
