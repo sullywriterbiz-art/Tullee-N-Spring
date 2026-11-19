@@ -26,7 +26,7 @@ canvas{display:block;touch-action:none}
   padding:10px 16px;border-radius:20px;
   font:12px Arial,sans-serif;text-align:center;
 }
-#enter,#poemModal{
+#enter{
   position:fixed;inset:0;z-index:10;
   display:flex;align-items:center;justify-content:center;
   background:#0c0907e0;padding:20px;
@@ -43,14 +43,16 @@ button{
   padding:12px 22px;cursor:pointer;font-size:14px;
 }
 #poemModal{
-  display:none;z-index:20;flex-direction:column;
-  justify-content:flex-start;overflow-y:auto;
-  background:#080706f5;
+  display:none;position:fixed;inset:0;z-index:20;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:#080706f5;padding:64px 16px 32px;
 }
-#closePoem{position:sticky;top:0;align-self:flex-end;flex-shrink:0}
+#closePoem{
+  position:fixed;top:16px;right:16px;z-index:21;
+}
 #poemImage{
   display:block;width:auto;max-width:94vw;height:auto;
-  margin:10px auto 25px;
+  margin:0 auto;
 }
 #touchControls{
   display:none;position:fixed;bottom:60px;left:15px;
@@ -92,7 +94,7 @@ button{
 <div id="poemModal">
   <button id="closePoem">Close poem</button>
   <img id="poemImage"
-       src="assets/poems/HorseHIlls.png"
+       src="assets/poems/HorseHIlls.png?v=2"
        alt="HorseHills poem">
 </div>
 
@@ -319,7 +321,7 @@ const photo=framedImage(
 /* HORSEHILLS POEM */
 
 const poem=framedImage(
-  "assets/poems/HorseHIlls.png",
+  "assets/poems/HorseHIlls.png?v=2",
   2.65,3.1,3.0,4.2
 );
 
@@ -435,7 +437,7 @@ const poemModal=document.getElementById('poemModal');
 
 renderer.domElement.addEventListener('click',e=>{
 
-  if(!entered||poemModal.style.display==='flex')return;
+  if(!entered||poemModal.style.display==='block')return;
 
   pointer.x=e.clientX/innerWidth*2-1;
   pointer.y=-(e.clientY/innerHeight)*2+1;
@@ -444,7 +446,8 @@ renderer.domElement.addEventListener('click',e=>{
 
   if(raycaster.intersectObject(poem.image).length){
     modalOpenedAt=performance.now();
-    poemModal.style.display='flex';
+    poemModal.style.display='block';
+    poemModal.scrollTop=0;
   }
 });
 
@@ -499,6 +502,7 @@ addEventListener('resize',()=>{
 </script>
 </body>
 </html>
+
 
 
 
